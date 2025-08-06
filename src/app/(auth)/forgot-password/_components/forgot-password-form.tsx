@@ -14,7 +14,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -68,45 +67,30 @@ const ForgotPasswordForm = () => {
   }
   return (
     <div>
-      <div className="w-full md:w-[547px] p-3 md:p-7 lg:p-8 rounded-[16px] bg-white">
-        <h3 className="text-2xl md:text-[28px] lg:text-[32px] font-bold text-[#1F2937] text-center leading-[120%] pb-3 lg:pb-4">
+      <div className="w-full md:w-[570px]">
+        <h3 className="text-2xl md:text-[32px] lg:text-[40px] font-bold text-black text-left leading-[120%] ">
           Forgot Password
         </h3>
-        <p className="text-base font-normal text-[#787878] text-center leading-[150%] ">
-          Please enter the email address linked to your <br /> account.
-          We&apos;ll send a one-time password (OTP) to <br /> your email for
-          verification.
+        <p className="text-base md:text-lg lg:text-xl font-medium text-[#B0B0B0] leading-[120%] pt-[5px]">
+          Enter your registered email address. we’ll send you a code to reset
+          your password.
         </p>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 pt-5 md:pt-6"
+            className="pt-5 md:pt- lg:pt-8"
           >
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%] text-[#293440] pb-2">
-                    Email{" "}
-                    <sup>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="8"
-                        height="8"
-                        viewBox="0 0 8 8"
-                        fill="none"
-                      >
-                        <path
-                          d="M8 2.94136L5.09314 2.75025L3.99841 0L2.90367 2.75025L0 2.94136L2.22709 4.83239L1.49628 7.70097L3.99841 6.11939L6.50055 7.70097L5.76973 4.83239L8 2.94136Z"
-                          fill="#293440"
-                        />
-                      </svg>
-                    </sup>
+                  <FormLabel className="text-base font-medium leading-[120%] text-black">
+                    Email Address
                   </FormLabel>
                   <FormControl>
                     <Input
-                      className="w-full h-[48px] text-base font-medium leading-[120%] text-[#293440] rounded-[8px] p-4 border border-[#6C6C6C] placeholder:text-[#787878]"
+                      className="w-full h-[51px] text-base font-medium leading-[120%] text-black rounded-[8px] p-4 border border-[#272727] placeholder:text-[#272727]"
                       placeholder="Enter your email ...."
                       {...field}
                     />
@@ -115,23 +99,15 @@ const ForgotPasswordForm = () => {
                 </FormItem>
               )}
             />
-
-            <Button
-              disabled={isPending}
-              className="text-lg font-medium text-[#F8FAF9] leading-[120%] rounded-[8px] w-full h-[52px] bg-[#293440]"
-              type="submit"
-            >
-              {isPending ? "Sending..." : "Send"}
-            </Button>
-            <p className="flex items-center justify-center gap-1 text-sm font-medium leading-[120%] ">
-              Back to
-              <Link
-                href="/login"
-                className="text-[#333333] pl-1 hover:underline"
+            <div className="pt-5 md:pt-7 lg:pt-8">
+              <Button
+                disabled={isPending}
+                className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"
+                type="submit"
               >
-                Log In Here Now
-              </Link>{" "}
-            </p>
+                {isPending ? "Sending..." : "Send OTP"}
+              </Button>
+            </div>
           </form>
         </Form>
       </div>
