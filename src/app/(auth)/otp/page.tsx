@@ -1,11 +1,17 @@
-import React from 'react'
+import React, { Suspense } from "react";
+import AuthLayoutDesign from "../_components/auth-layout";
+import OtpForm from "./_components/otp-form";
 
-const Page = () => {
+const OtpFormPage = () => {
   return (
     <div>
-      otp page
+      <AuthLayoutDesign>
+        <Suspense fallback={<div>Loading...</div>}>
+          <OtpForm />
+        </Suspense>
+      </AuthLayoutDesign>
     </div>
-  )
-}
+  );
+};
 
-export default Page
+export default OtpFormPage;
