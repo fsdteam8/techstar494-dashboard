@@ -99,7 +99,7 @@ const ForgotPasswordForm = () => {
                 </FormItem>
               )}
             />
-            <div className="pt-5 md:pt-7 lg:pt-8">
+            <div className="pt-5 md:pt-7 lg:pt-8"> 
               <Button
                 disabled={isPending}
                 className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"

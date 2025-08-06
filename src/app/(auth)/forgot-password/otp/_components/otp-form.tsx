@@ -17,10 +17,10 @@ export default function OtpForm() {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-    const searchParams = useSearchParams();
-    const email = searchParams.get("email");
-    const decodedEmail = decodeURIComponent(email || "");
-    const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  const decodedEmail = decodeURIComponent(email || "");
+  const router = useRouter();
 
   // Focus the first input on component mount
   useEffect(() => {
@@ -66,53 +66,50 @@ export default function OtpForm() {
   };
 
   // otp api integration
-    const { mutate, isPending } = useMutation({
-      mutationKey: ["verify-otp"],
-      mutationFn: (values: { otp: string; email: string }) =>
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/verify-code`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }).then((res) => res.json()),
-      onSuccess: (data) => {
-        if (!data?.status) {
-          toast.error(data?.message || "Something went wrong");
-          return;
-        } else {
-          toast.success(data?.message || "Email sent successfully!");
-          router.push(
-            `/reset-password?email=${encodeURIComponent(decodedEmail)}`
-          );
-        }
-      },
-    });
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["verify-otp"],
+    mutationFn: (values: { otp: string; email: string }) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/verify-code`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(values),
+      }).then((res) => res.json()),
+    onSuccess: (data) => {
+      if (!data?.status) {
+        toast.error(data?.message || "Something went wrong");
+        return;
+      } else {
+        toast.success(data?.message || "Email sent successfully!");
+        router.push(
+          `/reset-password?email=${encodeURIComponent(decodedEmail)}`
+        );
+      }
+    },
+  });
 
   // reset otp api integrattion
-      const { mutate:resentOtp, isPending: resentOtpPending } = useMutation({
-      mutationKey: ["fotgot-password"],
-      mutationFn: (email: string) =>
-        fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forget-password`,
-          {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-            },
-            body: JSON.stringify({ email }),
-          }
-        ).then((res) => res.json()),
-      onSuccess: (data, email) => {
-        if (!data?.status) {
-          toast.error(data?.message || "Something went wrong");
-          return;
-        } else {
-          toast.success(data?.message || "Email sent successfully!");
-          router.push(`/otp?email=${encodeURIComponent(email)}`);
-        }
-      },
-    });
+  const { mutate: resentOtp, isPending: resentOtpPending } = useMutation({
+    mutationKey: ["fotgot-password"],
+    mutationFn: (email: string) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forget-password`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      }).then((res) => res.json()),
+    onSuccess: (data, email) => {
+      if (!data?.status) {
+        toast.error(data?.message || "Something went wrong");
+        return;
+      } else {
+        toast.success(data?.message || "Email sent successfully!");
+        router.push(`/otp?email=${encodeURIComponent(email)}`);
+      }
+    },
+  });
 
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -131,9 +128,9 @@ export default function OtpForm() {
   };
 
   // handle resend otp
-    const handleResendOtp = async () => {
-      resentOtp(decodedEmail);
-    };
+  const handleResendOtp = async () => {
+    resentOtp(decodedEmail);
+  };
 
   // handle verify otp
   const handleVerify = async () => {
@@ -150,16 +147,17 @@ export default function OtpForm() {
   };
 
   return (
-    <div className="w-full md:w-[547px] p-3 md:p-7 lg:p-8 rounded-[16px] bg-white">
-      <h3 className="text-2xl md:text-[28px] lg:text-[32px] font-bold text-primary text-center leading-[120%] pb-2">
+    <div className="w-full md:w-[570px]">
+      <h3 className="text-2xl md:text-[32px] lg:text-[40px] font-bold text-black text-left leading-[120%] ">
         Enter OTP
       </h3>
-      <p className="text-base font-normal text-[#787878] leading-[150%] text-center">
-        Please enter the email address linked to your <br /> account. We&apos;ll send a one-time
+      <p className="text-base md:text-lg lg:text-xl font-medium text-[#B0B0B0] leading-[120%] pt-[5px]">
+        We have share a code of your registered email address <br />
+        robertfox@example.com
       </p>
       <div className="pt-5 md:pt-6">
         {/* OTP Input Fields */}
-        <div className="flex gap-[14px] md:gap-[18px] w-full justify-center">
+        <div className="flex w-full justify-start gap-[18px] md:gap-[24px] lg:gap-[30px]">
           {otp.map((digit, index) => (
             <Input
               key={index}
@@ -173,8 +171,8 @@ export default function OtpForm() {
               ref={(el) => {
                 inputRefs.current[index] = el;
               }}
-              className={`font-poppins w-[47px] md:w-[52px] h-[58px] bg-white text-primary placeholder:text-[#999999] text-center text-2xl font-medium leading-[120%] border-[1px] rounded-md focus:outline-none ${
-                digit ? "border-black" : "border-[#595959]"
+              className={`w-[50px] md:w-[60px] lg:w-[70px] h-[50px] md:h-[60px] lg:h-[70px] bg-transparent text-black placeholder:text-[#999999] text-center text-2xl md:text-[28px] lg:text-[32px] font-semibold leading-[120%] border-[1px] rounded-[8px] focus:outline-none ${
+                digit ? "border-black" : "border-[#B0B0B0]"
               }`}
               aria-label={`OTP digit ${index + 1}`}
             />
@@ -182,28 +180,30 @@ export default function OtpForm() {
         </div>
 
         {/* Resend OTP */}
-        <div className="text-center my-6">
-          <span className="text-base font-medium leading-[120%] text-[#1F2937] tracking-[0%]">
+        <div className="flex items-center justify-between mt-6">
+          <span className="text-base font-normal text-black leading-[120%]">
             Didn&apos;t Receive OTP?{" "}
           </span>
           <button
             onClick={handleResendOtp}
             disabled={resentOtpPending}
-            className="text-base font-medium leading-[120%] text-[#1F2937] tracking-[0%] hover:underline"
+            className="text-base font-normal text-black cursor-pointer leading-[120%] hover:underline"
           >
             {resentOtpPending ? "Resending..." : "Resend  code"}
           </button>
         </div>
 
         {/* Verify Button */}
-        <Button
-            disabled={isPending}
+        <div className="mt-5 md:mt-7 lg:mt-8">
+          <Button
+          disabled={isPending}
           onClick={handleVerify}
-          className="text-base font-medium text-[#F8FAF9] leading-[120%] rounded-[8px] w-full h-[48px] bg-[#293440] "
+          className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"
           type="submit"
         >
           {isPending ? "Verifying..." : "Verify"}
         </Button>
+        </div>
       </div>
     </div>
   );

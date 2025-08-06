@@ -18,8 +18,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import SuccessfullyPasswordModal from "@/components/modal/SuccessfullyPassword";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -34,12 +33,12 @@ const formSchema = z
   });
 
 const ResetPasswordForm = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
   const decodedEmail = decodeURIComponent(email || "");
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,9 +62,8 @@ const ResetPasswordForm = () => {
         toast.error(data?.message || "Something went wrong");
         return;
       } else {
-        // toast.success(data?.message || "Password Change successfully!");
-        // router.push(`/login`);
-        setIsOpen(true);
+        toast.success(data?.message || "Password Change successfully!");
+        router.push(`/login`);
       }
     },
   });
@@ -81,12 +79,12 @@ const ResetPasswordForm = () => {
   }
   return (
     <div>
-      <div className="w-full md:w-[547px] p-3 md:p-7 lg:p-8 rounded-[16px] bg-white">
-        <h3 className="text-2xl md:text-[28px] lg:text-[32px] font-bold text-[#1F2937] text-center leading-[120%] pb-2">
-          New Password
+      <div className="w-full md:w-[570px]">
+        <h3 className="text-2xl md:text-[32px] lg:text-[40px] font-bold text-black text-left leading-[120%] ">
+          Reset Password
         </h3>
-        <p className="text-base font-normal text-[#787878] leading-[170%] text-center">
-          Please Create your new password
+        <p className="text-base md:text-lg lg:text-xl font-medium text-[#B0B0B0] leading-[120%] pt-[5px]">
+          Create your new password
         </p>
         <Form {...form}>
           <form
@@ -98,22 +96,8 @@ const ResetPasswordForm = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%] text-[#293440] pb-2">
+                  <FormLabel className="text-base font-medium leading-[120%] text-black">
                     Password
-                    <sup>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="8"
-                        height="8"
-                        viewBox="0 0 8 8"
-                        fill="none"
-                      >
-                        <path
-                          d="M8 2.94136L5.09314 2.75025L3.99841 0L2.90367 2.75025L0 2.94136L2.22709 4.83239L1.49628 7.70097L3.99841 6.11939L6.50055 7.70097L5.76973 4.83239L8 2.94136Z"
-                          fill="#293440"
-                        />
-                      </svg>
-                    </sup>
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
@@ -146,28 +130,14 @@ const ResetPasswordForm = () => {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-1 text-base font-medium leading-[120%] text-[#293440] pb-2">
+                  <FormLabel className="text-base font-medium leading-[120%] text-black">
                     Confirm Password
-                    <sup>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="8"
-                        height="8"
-                        viewBox="0 0 8 8"
-                        fill="none"
-                      >
-                        <path
-                          d="M8 2.94136L5.09314 2.75025L3.99841 0L2.90367 2.75025L0 2.94136L2.22709 4.83239L1.49628 7.70097L3.99841 6.11939L6.50055 7.70097L5.76973 4.83239L8 2.94136Z"
-                          fill="#293440"
-                        />
-                      </svg>
-                    </sup>
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showConfirmPassword ? "text" : "password"}
-                        className="w-full h-[48px] text-base font-medium leading-[120%] text-[#293440] rounded-[8px] p-4 border border-[#6C6C6C] placeholder:text-[#787878]"
+                        className="w-full h-[51px] text-base font-medium leading-[120%] text-black rounded-[8px] p-4 border border-[#272727] placeholder:text-[#272727]"
                         placeholder="Enter Password ...."
                         {...field}
                       />
@@ -198,7 +168,7 @@ const ResetPasswordForm = () => {
 
             <Button
               disabled={isPending}
-              className="text-lg font-medium text-[#F8FAF9] leading-[120%] rounded-[8px] w-full h-[52px] bg-[#293440]"
+              className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"
               type="submit"
             >
               {isPending ? "Continuing..." : "Continue"}
@@ -206,15 +176,6 @@ const ResetPasswordForm = () => {
           </form>
         </Form>
       </div>
-      {/* successfully modal  */}
-      {isOpen && (
-        <SuccessfullyPasswordModal
-          open={isOpen}
-          onOpenChange={() => setIsOpen(false)}
-          title="Password Changed Successfully"
-          desc="Your password has been updated successfully"
-        />
-      )}
     </div>
   );
 };
