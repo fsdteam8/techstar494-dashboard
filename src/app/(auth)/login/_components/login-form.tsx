@@ -20,8 +20,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const formSchema = z.object({
   email: z.string().email({
