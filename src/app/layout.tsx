@@ -4,6 +4,7 @@ import AppProvider from "@/components/provider/AppProvider";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Roboto } from "next/font/google";
+import AuthProvider from "@/components/provider/AuthProvider";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -24,9 +25,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.className} antialiased`}>
-        <AppProvider>
-          {children} <ToastContainer position="top-right" />
-        </AppProvider>
+        <AuthProvider>
+          <AppProvider>
+            {children} <ToastContainer position="top-right" />
+          </AppProvider>
+        </AuthProvider>
       </body>
     </html>
   );
