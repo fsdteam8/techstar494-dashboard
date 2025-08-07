@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -36,7 +36,7 @@ const ForgotPasswordForm = () => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["forgot-password"],
     mutationFn: (email: string) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forget-password`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,14 +44,14 @@ const ForgotPasswordForm = () => {
         body: JSON.stringify({ email }),
       }).then((res) => res.json()),
 
-    onSuccess: (data, email) => {
-      if (!data?.status) {
+    onSuccess: (data) => {
+      if (!data?.success) {
         toast.error(data?.message || "Something went wrong");
         return;
       }
 
       toast.success(data?.message || "Email sent successfully!");
-      router.push(`/otp?email=${encodeURIComponent(email)}`);
+      router.push(`/forgot-password/otp?accessToken=${data?.data?.accessToken}`)
     },
 
     onError: (error) => {

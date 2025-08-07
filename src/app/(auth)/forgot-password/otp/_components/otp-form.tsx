@@ -8,19 +8,22 @@ import {
   type ClipboardEvent,
 } from "react";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function OtpForm() {
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email");
-  const decodedEmail = decodeURIComponent(email || "");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const accessToken = searchParams.get("accessToken") || "";
+
+  useEffect(() => {
+    if (!accessToken) router.push("/login");
+    else inputRefs.current[0]?.focus();
+  }, [router, accessToken]);
 
   // Focus the first input on component mount
   useEffect(() => {
@@ -68,48 +71,51 @@ export default function OtpForm() {
   // otp api integration
   const { mutate, isPending } = useMutation({
     mutationKey: ["verify-otp"],
-    mutationFn: (values: { otp: string; email: string }) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/verify-code`, {
+    mutationFn: (values: { otp: string }) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/verify-token`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(values),
       }).then((res) => res.json()),
     onSuccess: (data) => {
-      if (!data?.status) {
+      if (!data?.success) {
         toast.error(data?.message || "Something went wrong");
         return;
       } else {
         toast.success(data?.message || "Email sent successfully!");
         router.push(
-          `/reset-password?email=${encodeURIComponent(decodedEmail)}`
+          `/forgot-password/otp/reset-password?accessToken=${data?.data?.accessToken}`
         );
       }
     },
   });
 
   // reset otp api integrattion
-  const { mutate: resentOtp, isPending: resentOtpPending } = useMutation({
-    mutationKey: ["fotgot-password"],
-    mutationFn: (email: string) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forget-password`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      }).then((res) => res.json()),
-    onSuccess: (data, email) => {
-      if (!data?.status) {
-        toast.error(data?.message || "Something went wrong");
-        return;
-      } else {
-        toast.success(data?.message || "Email sent successfully!");
-        router.push(`/otp?email=${encodeURIComponent(email)}`);
-      }
-    },
-  });
+  // const { mutate: resentOtp, isPending: resentOtpPending } = useMutation({
+  //   mutationKey: ["fotgot-password"],
+  //   mutationFn: (email: string) =>
+  //     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/forgot-password`, {
+  //       method: "POST",
+  //       headers: {
+  //         "content-type": "application/json",
+  //       },
+  //       body: JSON.stringify({ email }),
+  //     }).then((res) => res.json()),
+  //   onSuccess: (data) => {
+  //     if (!data?.success) {
+  //       toast.error(data?.message || "Something went wrong");
+  //       return;
+  //     } else {
+  //       toast.success(data?.message || "Email sent successfully!");
+  //       router.push(
+  //         `/forgot-password/otp?accessToken=${data?.data?.accessToken}`
+  //       );
+  //     }
+  //   },
+  // });
 
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -128,9 +134,9 @@ export default function OtpForm() {
   };
 
   // handle resend otp
-  const handleResendOtp = async () => {
-    resentOtp(decodedEmail);
-  };
+  // const handleResendOtp = async () => {
+  //   resentOtp(decodedEmail);
+  // };
 
   // handle verify otp
   const handleVerify = async () => {
@@ -141,7 +147,7 @@ export default function OtpForm() {
       toast.error("Please enter all 6 digits of the OTP.");
       return;
     }
-    mutate({ otp: otpValue, email: decodedEmail });
+    mutate({ otp: otpValue });
 
     console.log("OTP Verified:", otpValue);
   };
@@ -185,24 +191,25 @@ export default function OtpForm() {
             Didn&apos;t Receive OTP?{" "}
           </span>
           <button
-            onClick={handleResendOtp}
-            disabled={resentOtpPending}
+            // onClick={handleResendOtp}
+            // disabled={resentOtpPending}
             className="text-base font-normal text-black cursor-pointer leading-[120%] hover:underline"
           >
-            {resentOtpPending ? "Resending..." : "Resend  code"}
+            {/* {resentOtpPending ? "Resending..." : "Resend  code"} */}
+            Resend Code
           </button>
         </div>
 
         {/* Verify Button */}
         <div className="mt-5 md:mt-7 lg:mt-8">
           <Button
-          disabled={isPending}
-          onClick={handleVerify}
-          className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"
-          type="submit"
-        >
-          {isPending ? "Verifying..." : "Verify"}
-        </Button>
+            disabled={isPending}
+            onClick={handleVerify}
+            className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"
+            type="submit"
+          >
+            {isPending ? "Verifying..." : "Verify"}
+          </Button>
         </div>
       </div>
     </div>

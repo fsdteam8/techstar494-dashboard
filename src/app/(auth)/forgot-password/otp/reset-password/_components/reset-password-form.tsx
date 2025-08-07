@@ -17,8 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
 
 const formSchema = z
   .object({
@@ -35,10 +35,12 @@ const formSchema = z
 const ResetPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email");
-  const decodedEmail = decodeURIComponent(email || "");
-  const router = useRouter();
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const accessToken = searchParams.get("accessToken") || "";
+  
+
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,16 +51,17 @@ const ResetPasswordForm = () => {
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["reset-password"],
-    mutationFn: (values: { newPassword: string; email: string }) =>
+    mutationFn: (values: { newPassword: string }) =>
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/reset-password`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(values),
       }).then((res) => res.json()),
     onSuccess: (data) => {
-      if (!data?.status) {
+      if (!data?.success) {
         toast.error(data?.message || "Something went wrong");
         return;
       } else {
@@ -68,14 +71,15 @@ const ResetPasswordForm = () => {
     },
   });
 
+  if(!accessToken){
+  router.push("/login");
+  return;
+}
+
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
     // console.log(values);
-    if (!decodedEmail) {
-      toast.error("email is required");
-      return;
-    }
-    mutate({ newPassword: values.password, email: decodedEmail });
+    mutate({ newPassword: values.password });
   }
   return (
     <div>
