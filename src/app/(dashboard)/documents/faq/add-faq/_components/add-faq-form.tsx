@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -32,6 +32,7 @@ const AddFaqForm = () => {
   const session = useSession();
   const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const router = useRouter();
+  const queryClient = useQueryClient();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -59,6 +60,7 @@ const AddFaqForm = () => {
       toast.success(data?.message || "FAQ added successfully!");
       form.reset();
       router.push("/documents/faq");
+      queryClient.invalidateQueries({ queryKey: ["all-faq"] });
     },
   });
 
