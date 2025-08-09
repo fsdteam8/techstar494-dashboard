@@ -18,7 +18,7 @@ import ClientLayout from "@/components/overveiw-componet/AppSidebar";
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body  className="bg-[#F3F4F6]">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
