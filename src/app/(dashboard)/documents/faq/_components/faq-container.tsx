@@ -1,10 +1,13 @@
 "use client";
+import DeleteModal from "@/components/modal/DeleteModal";
 import ErrorContainer from "@/components/shared/shared/ErrorContainer/ErrorContainer";
 import NotFound from "@/components/shared/shared/NotFound/NotFound";
 import TableSkeletonWrapper from "@/components/shared/shared/TableSkeletonWrapper/TableSkeletonWrapper";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SquarePen, Trash2 } from "lucide-react";
-import React from "react";
+import Link from "next/link";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 export type FAQDataType = {
   _id: string;
@@ -22,6 +25,10 @@ export type FAQDataResponse = {
 };
 
 const FaqContainer = () => {
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
   const { data, isLoading, isError, error } = useQuery<FAQDataResponse>({
     queryKey: ["all-faq"],
     queryFn: () =>
@@ -29,6 +36,35 @@ const FaqContainer = () => {
         res.json()
       ),
   });
+
+  // delete api logic
+  const { mutate: deleteFaq } = useMutation({
+    mutationKey: ["delete-faq"],
+    mutationFn: (id: string) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/faq/${id}`, {
+        method: "DELETE",
+        // headers: {
+        //   Authorization: `Bearer ${token}`,
+        // },
+      }).then((res) => res.json()),
+    onSuccess: (data) => {
+      if (!data?.success) {
+        toast.error(data?.message || "Failed to delete faq");
+        return;
+      } else {
+        toast.success(data?.message || "faq deleted successfully");
+      }
+      queryClient.invalidateQueries({ queryKey: ["all-faq"] });
+    },
+  });
+
+  // delete modal logic
+  const handleDelete = () => {
+    if (selectedBlogId) {
+      deleteFaq(selectedBlogId);
+    }
+    setDeleteModalOpen(false);
+  };
   if (isLoading) {
     return (
       <div className="my-10 rounded-lg">
@@ -64,11 +100,19 @@ const FaqContainer = () => {
                   {faq.question}
                 </h2>
                 <div className="flex items-center gap-2">
-                  <button className=" bg-[#6B46C1] p-3 rounded-[2px]">
-                    {" "}
-                    <SquarePen className="w-4 h-4 text-white" />
-                  </button>
-                  <button className=" bg-[#6B46C1] p-3 rounded-[2px]">
+                  <Link href={`/documents/faq/edit-faq/${faq._id}`}>
+                    <button className=" bg-[#6B46C1] p-3 rounded-[2px]">
+                      {" "}
+                      <SquarePen className="w-4 h-4 text-white" />
+                    </button>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setDeleteModalOpen(true);
+                      setSelectedBlogId(faq?._id);
+                    }}
+                    className=" bg-[#6B46C1] p-3 rounded-[2px]"
+                  >
                     {" "}
                     <Trash2 className="w-4 h-4 text-white" />
                   </button>
@@ -81,6 +125,14 @@ const FaqContainer = () => {
           );
         })}
       </div>
+      {/* delete modal  */}
+      {deleteModalOpen && (
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+        />
+      )}
     </div>
   );
 };

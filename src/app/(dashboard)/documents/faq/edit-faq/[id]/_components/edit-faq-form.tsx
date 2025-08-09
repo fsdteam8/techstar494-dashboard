@@ -14,10 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 // import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   question: z.string().min(2, {
@@ -28,9 +29,25 @@ const formSchema = z.object({
   }),
 });
 
-const AddFaqForm = () => {
-  // const session = useSession();
-  // const token = (session?.data?.user as { accessToken: string })?.accessToken;
+
+export type FAQ = {
+  _id: string;
+  question: string;
+  answer: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+};
+
+export type FAQSingleResponse = {
+  success: boolean;
+  message: string;
+  data: FAQ;
+};
+
+
+const EditFaqForm = ({ faqId }: { faqId: string }) => {
+//   const session = useSession();
+//   const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const router = useRouter();
   const queryClient = useQueryClient();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -41,14 +58,33 @@ const AddFaqForm = () => {
     },
   });
 
+  const { data,  } = useQuery<FAQSingleResponse>({
+    queryKey: ["single-faq", faqId],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/faq/${faqId}`).then((res) =>
+        res.json()
+      ),
+  });
+
+  console.log(data)
+
+  useEffect(() => {
+    if (data?.data) {
+      form.reset({
+        question: data?.data?.question || "",
+        answer: data?.data?.answer || "",
+      });
+    }
+  }, [data, form]);
+
   const { mutate, isPending } = useMutation({
-    mutationKey: ["add-faq"],
+    mutationKey: ["edit-faq", faqId],
     mutationFn: (values: z.infer<typeof formSchema>) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/faq/create`, {
-        method: "POST",
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/faq/update/${faqId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${token}`,
+        //   Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(values),
       }).then((res) => res.json()),
@@ -132,4 +168,4 @@ const AddFaqForm = () => {
   );
 };
 
-export default AddFaqForm;
+export default EditFaqForm;
