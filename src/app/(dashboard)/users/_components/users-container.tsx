@@ -106,7 +106,7 @@ export const orderData: Order[] = [
     status: "Delivered",
   },
 ];
-const OrderContainer = () => {
+const UsersContainer = () => {
   // const [currentPage, setCurrentPage] = useState(1);
   return (
     <div>
@@ -209,4 +209,4 @@ const OrderContainer = () => {
   );
 };
 
-export default OrderContainer;
+export default UsersContainer;

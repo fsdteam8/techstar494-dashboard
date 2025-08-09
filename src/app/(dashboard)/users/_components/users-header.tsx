@@ -11,16 +11,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const OrderHeader = () => {
+const UsersHeader = () => {
   const [search, setSearch] = useState("");
   return (
     <div className="w-full flex items-center justify-between">
       <div>
         <h2 className="text-xl font-bold text-[#1F2937] leading-[120%]">
-          Orders List
+          Users List
         </h2>
         <p className="text-sm text-[#4B5563] leading-[120%] font-normal pt-2">
-          See your orders list.
+          See your users list.
         </p>
       </div>
       <div className="relative w-1/3">
@@ -30,7 +30,7 @@ const OrderHeader = () => {
         />
         <Input
           type="search"
-          placeholder="Search by name/product"
+          placeholder="Search by name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={cn(
@@ -47,9 +47,9 @@ const OrderHeader = () => {
             <ListFilter size={20} className="text-primary" /> Filters
           </DropdownMenuTrigger>
           <DropdownMenuContent className="min-w-[5rem] bg-white">
-            <DropdownMenuLabel>Pending</DropdownMenuLabel>
-            <DropdownMenuLabel>Ongoing</DropdownMenuLabel>
-            <DropdownMenuLabel>Delivered</DropdownMenuLabel>
+            <DropdownMenuLabel>This Month</DropdownMenuLabel>
+            <DropdownMenuLabel>Previous Month</DropdownMenuLabel>
+            <DropdownMenuLabel>Last Year</DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -57,4 +57,4 @@ const OrderHeader = () => {
   );
 };
 
-export default OrderHeader;
+export default UsersHeader;
