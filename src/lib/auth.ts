@@ -6,7 +6,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60, // 7 day
+    maxAge: 30 * 24 * 60 * 60, // 30 day
   },
   providers: [
     CredentialsProvider({
@@ -40,8 +40,10 @@ export const authOptions: NextAuthOptions = {
           );
 
           const response = await res.json();
+
           console.log("response", response);
-          if (!res.ok || !response?.status) {
+
+          if (!res.ok || !response?.success) {
             throw new Error(response?.message || "Login failed");
           }
         //   if (response.data.user.role === "USER") {
@@ -51,10 +53,10 @@ export const authOptions: NextAuthOptions = {
 
           return {
             id: user._id,
-            name: user.name,
+            userName: user.userName,
             email: user.email,
             role: user.role,
-            profileImage: user.profileImage,
+            imageLink: user.imageLink,
             accessToken,
           };
         } catch (error) {
@@ -74,10 +76,10 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }: { token: JWT; user?: any }) {
       if (user) {
         token.id = user.id;
-        token.name = user.name;
+        token.userName = user.userName;
         token.email = user.email;
         token.role = user.role;
-        token.profileImage = user.profileImage;
+        token.imageLink = user.imageLink;
         token.accessToken = user.accessToken;
       }
       return token;
@@ -87,10 +89,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }: { session: any; token: JWT }) {
       session.user = {
         id: token.id,
-        name: token.name,
+        userName: token.userName,
         email: token.email,
         role: token.role,
-        profileImage: token.profileImage,
+        imageLink: token.imageLink,
         accessToken: token.accessToken,
       };
       return session;

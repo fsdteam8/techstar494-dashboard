@@ -46,12 +46,13 @@ import LogoutModal from "../modal/LogoutModal";
 const navigationItems = [
   { title: "Overview", icon: BarChart3, href: "/", isActive: true },
   { title: "Products", icon: FileText, href: "/products" },
-  { title: "Orders", icon: List, href: "/job-posts" },
-  { title: "Users", icon: Users, href: "/subscriber" },
-  { title: "Subscribers", icon: Users, href: "/subscriber" },
+  { title: "Orders", icon: List, href: "/orders" },
+  { title: "Users", icon: Users, href: "/users" },
+  { title: "Subscribers", icon: Users, href: "/subscribers" },
 ];
 
 const settingsItems = [
+  { title: "FAQ", icon: Settings, href: "/documents/faq" },
   { title: "Set Job Category", icon: Settings, href: "/job-categories" },
   { title: "Payment Details", icon: CreditCard, href: "/payment-details" },
   { title: "Blog", icon: FileText, href: "/blog" },
@@ -139,7 +140,7 @@ export default function ClientLayout({
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
-                        <SidebarMenuSub>
+                        <SidebarMenuSub className="">
                           {settingsItems.map((item) => (
                             <SidebarMenuSubItem key={item.title}>
                               <SidebarMenuSubButton
