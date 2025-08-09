@@ -65,7 +65,7 @@ const LoginForm = () => {
       router.push("/");
     } catch (error) {
       console.error("Login failed:", error);
-      toast.error((error as Error).message);
+      toast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
