@@ -53,10 +53,11 @@ const navigationItems = [
 
 const settingsItems = [
   { title: "FAQ", icon: Settings, href: "/documents/faq" },
-  { title: "Set Job Category", icon: Settings, href: "/job-categories" },
-  { title: "Payment Details", icon: CreditCard, href: "/payment-details" },
-  { title: "Blog", icon: FileText, href: "/blog" },
-  { title: "Send Email", icon: Mail, href: "/send-email" },
+  { title: "Privacy Policy", icon: Settings, href: "/documents/privacy-policy" },
+  { title: "Terms & Conditions", icon: CreditCard, href: "/documents/terms-and-condition" },
+  { title: "Legality", icon: FileText, href: "/documents/legality" },
+  { title: "Refund Policy", icon: Mail, href: "/documents/refund-policy" },
+  { title: "FDA Disclaimer", icon: Mail, href: "/documents/fda-disclaimer" },
 ];
 
 export default function ClientLayout({

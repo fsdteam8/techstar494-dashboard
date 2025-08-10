@@ -71,13 +71,13 @@ const TechstarPagination: React.FC<PaginationProps> = ({
               } else handlePageClick(currentPage - 1);
             }}
             className={cn(
-              "border border-[#525773] hover:bg-primary cursor-pointer  hover:text-white",
+              "border border-primary hover:bg-primary cursor-pointer  hover:text-white rounded-[4px]",
               currentPage === 1 &&
               "cursor-not-allowed bg-[#E3E3E3] border-0  pointer-events-none"
             )}
           >
             <ChevronLeft
-              className={cn("h-4 w-4", currentPage === 1 && "text-white")}
+              className={cn("h-4 w-4", currentPage === 1 && "text-[#B0B0B0]")}
             />
           </PaginationLink>
         </PaginationItem>
@@ -87,7 +87,7 @@ const TechstarPagination: React.FC<PaginationProps> = ({
             <PaginationLink
               onClick={() => handlePageClick(page)}
               className={cn(
-                "border cursor-pointer border-[#525773] hover:bg-[rgb(66,69,230)] hover:text-white",
+                "border cursor-pointer border-[#525773] hover:bg-[rgb(66,69,230)] hover:text-white rounded-[4px]",
                 page === currentPage
                   ? "bg-primary text-white"
                   : "hover:bg-[rgb(66,69,230)] hover:text-white"
@@ -108,12 +108,12 @@ const TechstarPagination: React.FC<PaginationProps> = ({
               }
             }}
             className={cn(
-              "border border-[#525773] hover:bg-primary cursor-pointer  hover:text-white",
+              "border border-[#525773] hover:bg-primary cursor-pointer  hover:text-white rounded-[4px]",
               currentPage === totalPages &&
               "cursor-not-allowed bg-[#E3E3E3] border-0  pointer-events-none"
             )}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 text-black" />
           </PaginationLink>
         </PaginationItem>
       </PaginationContent>

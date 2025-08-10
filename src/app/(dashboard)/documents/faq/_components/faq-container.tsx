@@ -88,7 +88,6 @@ const FaqContainer = () => {
       </div>
     );
   }
-  console.log(data?.data);
   return (
     <div>
       <div className="mt-4">
