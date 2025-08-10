@@ -1,11 +1,14 @@
-import React from 'react'
+import React from "react";
+import SubscriberHeader from "./_components/subscriber-header";
+import SubscriberContainer from "./_components/subscriber-container";
 
 const SubscribersPage = () => {
   return (
     <div>
-      subscribers page
+      <SubscriberHeader />
+      <SubscriberContainer />
     </div>
-  )
-}
+  );
+};
 
-export default SubscribersPage
+export default SubscribersPage;
