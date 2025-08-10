@@ -37,7 +37,7 @@ const SubscriberHeader = () => {
         />
       </div>
       <div>
-        <Link href="/documents/subscribers/add-faq">
+        <Link href="/subscribers/send-mail">
           <Button className="h-[51px] text-base font-medium text-white leading-[120%] py-4 px-8 rounded-[8px] bg-[#6B46C1]">
             Send Email
           </Button>

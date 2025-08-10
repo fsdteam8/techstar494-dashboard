@@ -53,7 +53,7 @@ const navigationItems = [
 
 const settingsItems = [
   { title: "FAQ", icon: Settings, href: "/documents/faq" },
-  { title: "Set Job Category", icon: Settings, href: "/job-categories" },
+  { title: "Privacy Policy", icon: Settings, href: "/documents/privacy-policy" },
   { title: "Payment Details", icon: CreditCard, href: "/payment-details" },
   { title: "Blog", icon: FileText, href: "/blog" },
   { title: "Send Email", icon: Mail, href: "/send-email" },
