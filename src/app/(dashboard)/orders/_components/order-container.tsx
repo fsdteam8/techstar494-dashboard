@@ -189,7 +189,7 @@ const OrderContainer = () => {
             data?.data?.pagination &&
             data?.data?.pagination?.totalPages > 1 && (
               <div className="bg-white flex items-center justify-between py-[10px] px-[50px]">
-                <p className="text-sm font-medium leading-[120%] font-manrope text-[#707070]">
+                <p className="text-sm font-medium leading-[120%]  text-[#707070]">
                   Showing {currentPage} to 8 of{" "}
                   {data?.data?.pagination?.totalData} results
                 </p>
