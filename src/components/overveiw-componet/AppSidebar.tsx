@@ -58,6 +58,8 @@ const settingsItems = [
   { title: "Legality", icon: FileText, href: "/documents/legality" },
   { title: "Refund Policy", icon: Mail, href: "/documents/refund-policy" },
   { title: "FDA Disclaimer", icon: Mail, href: "/documents/fda-disclaimer" },
+  { title: "Set Promotion", icon: Mail, href: "/documents/set-pormotion" },
+  { title: "Add Blog", icon: Mail, href: "/documents/all-blogs" },
 ];
 
 export default function ClientLayout({

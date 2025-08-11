@@ -63,14 +63,14 @@ const QuillEditor = ({ value, onChange, id }: QuillEditorProps) => {
 
       <style jsx global>{`
         .quill-editor-wrapper .ql-container {
-          border-color: black;
+          border-color: #6B46C1;
           border-bottom-left-radius: 0.375rem;
           border-bottom-right-radius: 0.375rem;
           min-height: 150px;
           font-size: 1rem;
         }
         .quill-editor-wrapper .ql-toolbar {
-          border-color: black;
+          border-color: #6B46C1;
           border-top-left-radius: 0.375rem;
           border-top-right-radius: 0.375rem;
           background: #f8fafc;
