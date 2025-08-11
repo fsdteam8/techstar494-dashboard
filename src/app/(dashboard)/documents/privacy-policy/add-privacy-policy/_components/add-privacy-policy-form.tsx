@@ -13,34 +13,68 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import QuillEditor from "@/components/ui/quill-editor";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 const FormSchema = z.object({
-  description: z.string().min(1, "Heading is required"),
+  content: z.string().min(1, "Heading is required"),
 });
+
+export type PrivacyPolicyResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    _id: string;
+    documentType: string;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+};
 
 const AddPrivacyPolicyForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      description: "",
+      content: "",
     },
   });
+
+  const { data } = useQuery<PrivacyPolicyResponse>({
+    queryKey: ["privacy-policy"],
+    queryFn: () =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/privacy-policy`
+      ).then((res) => res.json()),
+  });
+
+  useEffect(() => {
+    if (data && data?.data) {
+      form.setValue("content", data?.data?.content);
+    }
+  }, [data, form]);
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["add-privacy-policy"],
     mutationFn: (values: z.infer<typeof FormSchema>) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fadDisclaimer/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      }).then((res) => res.json()),
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/update/6898e8ef23e0740d62366e65`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(values),
+        }
+      ).then((res) => res.json()),
     onSuccess: (data) => {
       if (!data?.success) {
         toast.error(data?.message ?? "Something went wrong");
@@ -55,8 +89,12 @@ const AddPrivacyPolicyForm = () => {
   });
 
   function onSubmit(values: z.infer<typeof FormSchema>) {
-    console.log(values);
-    mutate(values);
+    // console.log(values);
+    const payload = {
+      content: values.content,
+      documentType: "privacy_policy",
+    };
+    mutate(payload);
   }
   return (
     <div className="pt-[64px]">
@@ -68,7 +106,7 @@ const AddPrivacyPolicyForm = () => {
           <div className="">
             <FormField
               control={form.control}
-              name="description"
+              name="content"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium font-poppins text-black leading-[120%] tracking-[0%] ">
@@ -76,7 +114,7 @@ const AddPrivacyPolicyForm = () => {
                   </FormLabel>
                   <FormControl className="h-[347px]">
                     <QuillEditor
-                      id="description"
+                      id="content"
                       value={field.value}
                       onChange={field.onChange}
                     />
