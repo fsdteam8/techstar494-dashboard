@@ -89,7 +89,12 @@ const AddFdaDisclaimerForm = () => {
           <div className="w-full flex items-center justify-end mt-[25px]">
             <button
               disabled={isPending}
-              className="w-[178px] h-[51px] px-8 bg-primary text-white rounded-[8px] text-base font-bold leading-normal "
+              className={`w-[178px] h-[51px] px-8 rounded-[8px] text-base font-bold leading-normal 
+          ${
+            isPending
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-primary text-white"
+          }`}
               type="submit"
             >
               {isPending ? "Sending..." : "Save Changes"}
