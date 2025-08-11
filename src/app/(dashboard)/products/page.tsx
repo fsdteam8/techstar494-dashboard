@@ -1,9 +1,12 @@
-import React from 'react'
+"use client"
+
+import ProductManager from "./_components/ProductManager"
+
 
 const Page = () => {
   return (
-    <div>
-      product page
+    <div className="">
+      <ProductManager />
     </div>
   )
 }
