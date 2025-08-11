@@ -13,31 +13,51 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import QuillEditor from "@/components/ui/quill-editor";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { RefundPolicyResponse } from "../../_components/refund-policy-container";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 const FormSchema = z.object({
-  description: z.string().min(1, "Heading is required"),
+  content: z.string().min(1, "Heading is required"),
 });
 
 const AddRefundPolicyForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;  
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      description: "",
+      content: "",
     },
   });
 
+    const { data } = useQuery<RefundPolicyResponse>({
+    queryKey: ["refund-policy"],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/refund-policy`).then(
+        (res) => res.json()
+      ),
+  });
+
+  useEffect(() => {
+    if (data && data?.data) {
+      form.setValue("content", data?.data?.content);
+    }
+  }, [data, form]);
+
   const { mutate, isPending } = useMutation({
-    mutationKey: ["add-privacy-policy"],
+    mutationKey: ["add-refund-policy"],
     mutationFn: (values: z.infer<typeof FormSchema>) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fadDisclaimer/create`, {
-        method: "POST",
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/update/6898e99423e0740d62366e6b`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(values),
       }).then((res) => res.json()),
@@ -47,16 +67,20 @@ const AddRefundPolicyForm = () => {
         return;
       }
 
-      toast.success(data?.message ?? "Privacy Policy added successfully");
+      toast.success(data?.message ?? "Refund Policy added successfully");
       form.reset();
-      router.push("/documents/privacy-policy");
-      queryClient.invalidateQueries({ queryKey: ["privacy-policy"] });
+      router.push("/documents/refund-policy");
+      queryClient.invalidateQueries({ queryKey: ["refund-policy"] });
     },
   });
 
   function onSubmit(values: z.infer<typeof FormSchema>) {
-    console.log(values);
-    mutate(values);
+    // console.log(values);
+    const payload = {
+      content: values.content,
+      documentType: "refund_policy",
+    }
+    mutate(payload);
   }
   return (
     <div className="pt-[64px]">
@@ -68,7 +92,7 @@ const AddRefundPolicyForm = () => {
           <div className="">
             <FormField
               control={form.control}
-              name="description"
+              name="content"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium font-poppins text-black leading-[120%] tracking-[0%] ">
@@ -76,7 +100,7 @@ const AddRefundPolicyForm = () => {
                   </FormLabel>
                   <FormControl className="h-[347px]">
                     <QuillEditor
-                      id="description"
+                      id="content"
                       value={field.value}
                       onChange={field.onChange}
                     />
