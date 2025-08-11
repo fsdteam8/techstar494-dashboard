@@ -27,7 +27,7 @@ const FormSchema = z.object({
 const AddLegalityForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-    const session = useSession();
+  const session = useSession();
   const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -36,12 +36,12 @@ const AddLegalityForm = () => {
     },
   });
 
-    const { data } = useQuery<LegalityResponse>({
+  const { data } = useQuery<LegalityResponse>({
     queryKey: ["legality"],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/legality`).then(
-        (res) => res.json()
-      ),
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/legality`
+      ).then((res) => res.json()),
   });
 
   useEffect(() => {
@@ -53,14 +53,17 @@ const AddLegalityForm = () => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["add-legality"],
     mutationFn: (values: z.infer<typeof FormSchema>) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/update/6898e3ee5c4ef76084064cf7`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(values),
-      }).then((res) => res.json()),
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/update/6898e3ee5c4ef76084064cf7`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(values),
+        }
+      ).then((res) => res.json()),
     onSuccess: (data) => {
       if (!data?.success) {
         toast.error(data?.message ?? "Something went wrong");
@@ -76,10 +79,11 @@ const AddLegalityForm = () => {
 
   function onSubmit(values: z.infer<typeof FormSchema>) {
     // console.log(values);
-     const payload = {
+    const payload = {
       content: values.content,
       documentType: "legality",
     };
+
     mutate(payload);
   }
   return (
@@ -113,7 +117,12 @@ const AddLegalityForm = () => {
           <div className="w-full flex items-center justify-end mt-[25px]">
             <button
               disabled={isPending}
-              className="w-[178px] h-[51px] px-8 bg-primary text-white rounded-[8px] text-base font-bold leading-normal "
+              className={`w-[178px] h-[51px] px-8 rounded-[8px] text-base font-bold leading-normal 
+          ${
+            isPending
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-primary text-white"
+          }`}
               type="submit"
             >
               {isPending ? "Sending..." : "Save Changes"}
