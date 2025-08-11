@@ -5,21 +5,24 @@ import PrivacyPolicyWrapper from "@/components/shared/shared/PrivacyPolicyWrappe
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
-export type FdaDisclaimerResponse = {
+export type TermsConditionsResponse = {
   success: boolean;
   message: string;
   data: {
     _id: string;
-    description: string;
-    __v: number;
-  } | null;
+    documentType: "terms_conditions";
+    content: string;
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
+  };
 };
 
+
 const TermsAndConditionContainer = () => {
-  const { data, isLoading, isError, error } = useQuery<FdaDisclaimerResponse>({
-    queryKey: ["privacy-policy"],
+  const { data, isLoading, isError, error } = useQuery<TermsConditionsResponse>({
+    queryKey: ["terms-and-condition"],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fadDisclaimer`).then(
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/terms-conditions`).then(
         (res) => res.json()
       ),
   });
@@ -51,7 +54,7 @@ const TermsAndConditionContainer = () => {
   console.log(data);
   return <div className="pt-[64px]">
 
-    <p dangerouslySetInnerHTML={{__html: data?.data?.description ?? ""}}/>
+    <p dangerouslySetInnerHTML={{__html: data?.data?.content ?? ""}}/>
   </div>;
 };
 
