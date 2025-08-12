@@ -4,13 +4,12 @@ import type React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3,
-  FileText,
-  List,
-  Mail,
+  LayoutDashboard ,
+  Boxes ,
+  ShoppingCart ,
   Settings,
   Users,
-  CreditCard,
+Square ,
   LogOut,
   ChevronDown,
 } from "lucide-react";
@@ -44,38 +43,38 @@ import { signOut } from "next-auth/react";
 import LogoutModal from "../modal/LogoutModal";
 
 const navigationItems = [
-  { title: "Overview", icon: BarChart3, href: "/", isActive: true },
-  { title: "Products", icon: FileText, href: "/products" },
-  { title: "Orders", icon: List, href: "/orders" },
+  { title: "Overview", icon: LayoutDashboard , href: "/", isActive: true },
+  { title: "Products", icon: Boxes , href: "/products" },
+  { title: "Orders", icon: ShoppingCart , href: "/orders" },
   { title: "Users", icon: Users, href: "/users" },
   { title: "Subscribers", icon: Users, href: "/subscribers" },
-  { title: "Coupon", icon: Users, href: "/coupon" },
-  { title: "Settings", icon: Users, href: "/settings" },
+
 ];
 
 const settingsItems = [
-  { title: "FAQ", icon: Settings, href: "/documents/faq" },
+  { title: "FAQ",  href: "/documents/faq" },
   {
     title: "Privacy Policy",
-    icon: Settings,
+    
     href: "/documents/privacy-policy",
   },
   {
     title: "Terms & Conditions",
-    icon: CreditCard,
+   
     href: "/documents/terms-and-condition",
   },
-  { title: "Legality", icon: FileText, href: "/documents/legality" },
-  { title: "Refund Policy", icon: Mail, href: "/documents/refund-policy" },
-  { title: "FDA Disclaimer", icon: Mail, href: "/documents/fda-disclaimer" },
-  { title: "Grand Purp Labs", icon: Mail, href: "/documents/grand-purp-labs" },
-  { title: "Set Promotion", icon: Mail, href: "/documents/set-pormotion" },
-  { title: "Add Blog", icon: Mail, href: "/documents/all-blogs" },
+  { title: "Legality",  href: "/documents/legality" },
+  { title: "Refund Policy",  href: "/documents/refund-policy" },
+  { title: "COAs",  href: "/documents/coas" },
+  { title: "FDA Disclaimer",  href: "/documents/fda-disclaimer" },
+  { title: "Grand Purp Labs", href: "/documents/grand-purp-labs" },
+  { title: "Set Promotion",  href: "/documents/set-pormotion" },
+  { title: "Add Blog",  href: "/documents/all-blogs" },
 ];
 
 const navigationItems1 = [
-  { title: "Coupon", icon: Users, href: "/coupon" },
-  { title: "Settings", icon: Users, href: "/settings" },
+  { title: "Coupon", icon: Square , href: "/coupon" },
+  { title: "Settings", icon: Settings , href: "/settings" },
 ];
 
 export default function ClientLayout({
@@ -100,9 +99,10 @@ export default function ClientLayout({
     if (!name) return "U";
     return name.charAt(0).toUpperCase();
   };
+   const isDocumentsActive = settingsItems.some((item) => pathname === item.href);
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="px-0">
       <div className="flex min-h-screen w-full relative">
         <Sidebar className="bg-[#6B46C1]">
           <SidebarHeader className="border-b border-cyan-500/30 pb-4">
@@ -150,30 +150,33 @@ export default function ClientLayout({
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <Collapsible defaultOpen className="group/collapsible">
+                <Collapsible className="group/collapsible">
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="text-white hover:bg-cyan-500/30">
+                       <SidebarMenuButton 
+                          isActive={isDocumentsActive}
+                          className="text-white hover:bg-white hover:text-[#6B46C1] data-[active=true]:bg-white data-[active=true]:text-[#6B46C1] h-[48px] !w-full"
+                        >
                           <Settings className="h-4 w-4" />
-                          <span className="text-sm font-medium">Documents</span>
+                          <span className="text-[16px] font-medium">Documents</span>
                           <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub className="">
                           {settingsItems.map((item) => (
-                            <SidebarMenuSubItem key={item.title}>
+                             <SidebarMenuSubItem key={item.title}>
                               <SidebarMenuSubButton
                                 asChild
                                 isActive={pathname === item.href}
-                                className="text-white/80 hover:text-white hover:bg-cyan-500/20 data-[active=true]:bg-cyan-500/30 data-[active=true]:text-[#6B46C1]"
+                                className="text-white hover:bg-white hover:text-[#6B46C1] data-[active=true]:bg-white data-[active=true]:text-[#6B46C1] h-[35px] !w-full"
                               >
                                 <Link
                                   href={item.href}
-                                  className="flex items-center gap-2"
+                                  className="flex items-center gap-3"
                                 >
-                                  <item.icon className="h-3 w-3" />
-                                  <span className="text-sm">{item.title}</span>
+                               
+                                  <span className="text-base font-medium">{item.title}</span>
                                 </Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
@@ -230,10 +233,10 @@ export default function ClientLayout({
           <SidebarRail />
         </Sidebar>
 
-        <SidebarInset className="flex-1">
-          <div className="bg-[#6B46C1] text-white py-4 flex justify-end items-center px-6">
+        <SidebarInset className="flex-1  ">
+          <div className="bg-[#6B46C1] text-white py-4 flex justify-end items-center px-6 sticky top-0 z-50 ">
             <div className="flex items-center gap-2">
-              <span className="text-sm">User</span>
+              <span className="text-sm">User 12</span>
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-white text-cyan-500">
                   {getInitials()}
@@ -255,3 +258,4 @@ export default function ClientLayout({
     </SidebarProvider>
   );
 }
+

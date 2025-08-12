@@ -36,46 +36,46 @@ export default function AddProductForm({ onSave }: AddProductFormProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
-          <Card>
+        <div className="lg:col-span-2 flex flex-col gap-6  shadow-[0_0_10px_2px_#1018281A] rounded-[8px]">
+          <Card className="border-none shadow-none">
             <CardHeader>
-              <CardTitle>General Information</CardTitle>
+              <CardTitle className="text-xl text-[#1A1C21] font-semibold">General Information</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4">
               <div>
-                <label htmlFor="product-name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="product-name" className="block text-base font-medium text-[#272727] mb-1">
                   Product Name
                 </label>
-                <Input id="product-name" placeholder="Type product name here" />
+                <Input id="product-name" placeholder="Type product name here" className="h-[40px] border border-[#707070] rounded-[8px]" />
               </div>
               <div>
-                <label htmlFor="batch" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="batch" className="block text-base font-medium text-[#272727] mb-1">
                   Batch
                 </label>
-                <Input id="batch" placeholder="Type batch number here" />
+                <Input id="batch" placeholder="Type batch number here"  className="h-[40px] border border-[#707070] rounded-[8px]"/>
               </div>
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="description" className="block text-base font-medium text-[#272727] mb-1">
                   Description
                 </label>
-                <Textarea id="description" placeholder="Type product description here." rows={4} />
+                <Textarea id="description" placeholder="Type product description here." rows={6}  className=" border border-[#707070] rounded-[8px]"/>
               </div>
               <div>
-                <label htmlFor="disclaimers" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="disclaimers" className="block text-base font-medium text-[#272727] mb-1">
                   Disclaimers and Disclosures
                 </label>
-                <Textarea id="disclaimers" placeholder="Type disclaimers and disclosures here." rows={4} />
+                <Textarea id="disclaimers" placeholder="Type disclaimers and disclosures here." rows={6}  className=" border border-[#707070] rounded-[8px]"/>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-none shadow-none">
             <CardHeader>
               <CardTitle>Benefits</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                <Input placeholder="Benefits 1" />
+                <Input placeholder="Benefits 1" className="h-[40px] border border-[#707070] rounded-[8px]" />
                 <Button variant="outline" size="icon">
                   <PlusIcon className="w-4 h-4" />
                 </Button>
@@ -83,25 +83,36 @@ export default function AddProductForm({ onSave }: AddProductFormProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-none shadow-none">
             <CardHeader>
               <CardTitle>Set Prices</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4">
-              <div className="flex items-center gap-2">
-                <Select defaultValue="ct">
+              <div className="flex items-center justify-between gap-2">
+                <Select  defaultValue="ct"  >
                   <SelectTrigger className="w-[80px]">
                     <SelectValue placeholder="Unit" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white z-40">
                     <SelectItem value="ct">ct</SelectItem>
                     <SelectItem value="g">g</SelectItem>
                     <SelectItem value="mg">mg</SelectItem>
                   </SelectContent>
                 </Select>
-                <Input placeholder="0" className="w-[100px]" />
+                <div className="flex items-center gap-x-2" >
+                  <label htmlFor="Unit" className="block text-base font-medium text-[#272727] mb-1">
+                    Unit
+                  </label>
+                  <Input id="price" placeholder="0" className="" />
+                </div>
+              <div className="flex items-center gap-x-2">
+                <label htmlFor="price" className="block text-base font-medium text-[#272727] mb-1">
+                  Price
+                </label>
+              
                 <Input placeholder="$0" className="w-[100px]" />
-                <Button className="bg-[#6B46C1] hover:bg-[#5A3A9F] text-white">Set</Button>
+              </div>
+                <Button className="bg-[#6B46C1]  text-white h-[51px] rounded-[8px] px-[32px] hover:bg-[#6B46C1]/85">Set</Button>
               </div>
               <Button variant="outline" className="w-fit bg-transparent">
                 Add More
@@ -109,7 +120,7 @@ export default function AddProductForm({ onSave }: AddProductFormProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-none shadow-none">
             <CardHeader>
               <CardTitle>COAs</CardTitle>
             </CardHeader>
@@ -122,7 +133,7 @@ export default function AddProductForm({ onSave }: AddProductFormProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-none shadow-none">
             <CardHeader>
               <CardTitle>Restricted States</CardTitle>
             </CardHeader>
@@ -136,7 +147,7 @@ export default function AddProductForm({ onSave }: AddProductFormProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-none shadow-none">
             <CardHeader>
               <CardTitle>Expiration Date</CardTitle>
             </CardHeader>
