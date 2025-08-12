@@ -13,50 +13,77 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import QuillEditor from "@/components/ui/quill-editor";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { FDAResponse } from "../../_components/fda-disclaimer-container";
+import { useEffect } from "react";
 
 const FormSchema = z.object({
-  description: z.string().min(1, "Heading is required"),
+  content: z.string().min(1, "Heading is required"),
 });
 
 const AddFdaDisclaimerForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      description: "",
+      content: "",
     },
   });
 
+  const { data } = useQuery<FDAResponse>({
+    queryKey: ["fda-disclaimer"],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/fda`).then(
+        (res) => res.json()
+      ),
+  });
+
+  useEffect(() => {
+    if (data && data?.data) {
+      form.setValue("content", data?.data?.content);
+    }
+  }, [data, form]);
+
   const { mutate, isPending } = useMutation({
-    mutationKey: ["add-privacy-policy"],
+    mutationKey: ["add-fda-disclaimer"],
     mutationFn: (values: z.infer<typeof FormSchema>) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fadDisclaimer/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      }).then((res) => res.json()),
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/legal-documents/update/68998d2973dc74f8a1cdc733`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(values),
+        }
+      ).then((res) => res.json()),
     onSuccess: (data) => {
       if (!data?.success) {
         toast.error(data?.message ?? "Something went wrong");
         return;
       }
 
-      toast.success(data?.message ?? "Privacy Policy added successfully");
+      toast.success(data?.message ?? "FDA Disclaimer added successfully");
       form.reset();
-      router.push("/documents/privacy-policy");
-      queryClient.invalidateQueries({ queryKey: ["privacy-policy"] });
+      router.push("/documents/fda-disclaimer");
+      queryClient.invalidateQueries({ queryKey: ["fda-disclaimer"] });
     },
   });
 
   function onSubmit(values: z.infer<typeof FormSchema>) {
-    console.log(values);
-    mutate(values);
+    // console.log(values);
+    const payload = {
+      content: values.content,
+      documentType: "fda",
+    };
+    mutate(payload);
   }
   return (
     <div className="pt-[64px]">
@@ -68,7 +95,7 @@ const AddFdaDisclaimerForm = () => {
           <div className="">
             <FormField
               control={form.control}
-              name="description"
+              name="content"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-lg font-medium font-poppins text-black leading-[120%] tracking-[0%] ">
@@ -76,7 +103,7 @@ const AddFdaDisclaimerForm = () => {
                   </FormLabel>
                   <FormControl className="h-[347px]">
                     <QuillEditor
-                      id="description"
+                      id="content"
                       value={field.value}
                       onChange={field.onChange}
                     />
