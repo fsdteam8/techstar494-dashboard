@@ -105,7 +105,7 @@ export default function ClientLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full relative">
         <Sidebar className="bg-[#6B46C1]">
-          <SidebarHeader className="border-b border-cyan-500/30 pb-4">
+          <SidebarHeader className="border-b border-cyan-500/30 pb-4 ">
             <div className="flex justify-between items-center gap-3 px-3 py-2">
               <div className="flex h-10 w-[175px] items-center justify-center  bg-white text-cyan-600 font-bold text-sm">
                 <Image
