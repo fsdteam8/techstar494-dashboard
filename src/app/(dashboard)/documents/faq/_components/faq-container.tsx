@@ -5,6 +5,7 @@ import NotFound from "@/components/shared/shared/NotFound/NotFound";
 import TableSkeletonWrapper from "@/components/shared/shared/TableSkeletonWrapper/TableSkeletonWrapper";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SquarePen, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
@@ -25,6 +26,8 @@ export type FAQDataResponse = {
 };
 
 const FaqContainer = () => {
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -43,9 +46,9 @@ const FaqContainer = () => {
     mutationFn: (id: string) =>
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/faq/${id}`, {
         method: "DELETE",
-        // headers: {
-        //   Authorization: `Bearer ${token}`,
-        // },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }).then((res) => res.json()),
     onSuccess: (data) => {
       if (!data?.success) {
