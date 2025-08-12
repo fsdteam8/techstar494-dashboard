@@ -49,17 +49,33 @@ const navigationItems = [
   { title: "Orders", icon: List, href: "/orders" },
   { title: "Users", icon: Users, href: "/users" },
   { title: "Subscribers", icon: Users, href: "/subscribers" },
+  { title: "Coupon", icon: Users, href: "/coupon" },
+  { title: "Settings", icon: Users, href: "/settings" },
 ];
 
 const settingsItems = [
   { title: "FAQ", icon: Settings, href: "/documents/faq" },
-  { title: "Privacy Policy", icon: Settings, href: "/documents/privacy-policy" },
-  { title: "Terms & Conditions", icon: CreditCard, href: "/documents/terms-and-condition" },
+  {
+    title: "Privacy Policy",
+    icon: Settings,
+    href: "/documents/privacy-policy",
+  },
+  {
+    title: "Terms & Conditions",
+    icon: CreditCard,
+    href: "/documents/terms-and-condition",
+  },
   { title: "Legality", icon: FileText, href: "/documents/legality" },
   { title: "Refund Policy", icon: Mail, href: "/documents/refund-policy" },
   { title: "FDA Disclaimer", icon: Mail, href: "/documents/fda-disclaimer" },
+  { title: "Grand Purp Labs", icon: Mail, href: "/documents/grand-purp-labs" },
   { title: "Set Promotion", icon: Mail, href: "/documents/set-pormotion" },
   { title: "Add Blog", icon: Mail, href: "/documents/all-blogs" },
+];
+
+const navigationItems1 = [
+  { title: "Coupon", icon: Users, href: "/coupon" },
+  { title: "Settings", icon: Users, href: "/settings" },
 ];
 
 export default function ClientLayout({
@@ -104,6 +120,7 @@ export default function ClientLayout({
           </SidebarHeader>
 
           <SidebarContent className="">
+
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -165,6 +182,32 @@ export default function ClientLayout({
                       </CollapsibleContent>
                     </SidebarMenuItem>
                   </Collapsible>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+             <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {navigationItems1.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === item.href}
+                        className="text-white hover:bg-white data-[active=true]:bg-white data-[active=true]:text-[#6B46C1] h-[48px] !w-full"
+                      >
+                        <Link
+                          href={item.href}
+                          className="flex items-center gap-3"
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span className="text-base font-medium">
+                            {item.title}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
