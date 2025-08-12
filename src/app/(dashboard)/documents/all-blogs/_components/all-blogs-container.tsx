@@ -2,6 +2,7 @@
 import TechstarPagination from "@/components/ui/TechstarPagination";
 import { ArrowRight, SquarePen, Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useState } from "react";
 
 interface BlogType {
@@ -98,6 +99,7 @@ const AllBlogsContainer = () => {
 
                 {/* Overlay Icon */}
                 <div className="absolute top-6 right-6 flex items-center gap-4">
+                  <Link href={`/documents/all-blogs/edit-blog/${blog.id}`}>
                   <button
                     type="button"
                     className="bg-white rounded-full p-3 shadow-md hover:bg-gray-100 transition"
@@ -105,6 +107,7 @@ const AllBlogsContainer = () => {
                   >
                     <SquarePen className="text-[#6B46C1] w-4 h-4" />
                   </button>
+                  </Link>
                   <button
                     type="button"
                     className="bg-white rounded-full p-3 shadow-md hover:bg-gray-100 transition"

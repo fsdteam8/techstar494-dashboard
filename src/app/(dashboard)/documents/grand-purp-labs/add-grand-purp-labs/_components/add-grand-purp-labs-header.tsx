@@ -2,12 +2,12 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-const EditBlogHeader = ({ blogId }: { blogId: string }) => {
+const AddGrandPurpLabsHeader = () => {
   return (
     <div className="w-full flex items-center justify-start">
       <div>
         <h2 className="text-xl font-bold text-[#1F2937] leading-[120%]">
-          Edit Blog
+          Grand Purp Labs
         </h2>
         <div className="flex items-center gap-2">
           <p className="text-sm text-[#4B5563] leading-[120%] font-normal pt-2">
@@ -17,24 +17,18 @@ const EditBlogHeader = ({ blogId }: { blogId: string }) => {
             <ChevronRight className="w-4 h-4 text-[#4B5563] mt-2" />
           </span>
           <Link
-            href="/documents/all-blogs"
+            href="/documents/legality"
             className="hover:underline hover:text-primary font-medium"
           >
             <p className="text-sm text-[#4B5563] leading-[120%] font-normal pt-2">
-              All Blogs
+              Grand Purp Labs
             </p>
           </Link>
           <span>
             <ChevronRight className="w-4 h-4 text-[#4B5563] mt-2" />
           </span>
           <p className="text-sm text-[#4B5563] leading-[120%] font-normal pt-2">
-            Edit Blog
-          </p>
-          <span>
-            <ChevronRight className="w-4 h-4 text-[#4B5563] mt-2" />
-          </span>
-          <p className="text-sm text-[#4B5563] leading-[120%] font-normal pt-2">
-            {blogId}
+            Add Grand Purp Labs
           </p>
         </div>
       </div>
@@ -42,4 +36,4 @@ const EditBlogHeader = ({ blogId }: { blogId: string }) => {
   );
 };
 
-export default EditBlogHeader;
+export default AddGrandPurpLabsHeader;
