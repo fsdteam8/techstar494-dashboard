@@ -65,7 +65,7 @@ const settingsItems = [
   },
   { title: "Legality",  href: "/documents/legality" },
   { title: "Refund Policy",  href: "/documents/refund-policy" },
-  { title: "COAs",  href: "/documents/coas" },
+  { title: "COAs",  href: "/coas" },
   { title: "FDA Disclaimer",  href: "/documents/fda-disclaimer" },
   { title: "Grand Purp Labs", href: "/documents/grand-purp-labs" },
   { title: "Set Promotion",  href: "/documents/set-pormotion" },
