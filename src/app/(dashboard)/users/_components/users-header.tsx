@@ -1,18 +1,23 @@
-"use client";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { ListFilter, Search } from "lucide-react";
-import React, { useState } from "react";
+'use client'
+
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
+import { ListFilter, Search } from 'lucide-react'
+import React from 'react'
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 
-const UsersHeader = () => {
-  const [search, setSearch] = useState("");
+interface UsersHeaderProps {
+  search: string
+  setSearch: React.Dispatch<React.SetStateAction<string>>
+}
+
+const UsersHeader: React.FC<UsersHeaderProps> = ({ search, setSearch }) => {
   return (
     <div className="w-full flex items-center justify-between">
       <div>
@@ -34,10 +39,10 @@ const UsersHeader = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={cn(
-            "pl-10",
-            "border-primary",
-            "h-[48px] rounded-[8px] placeholder:text-sm placeholder:text-[#707070] placeholder:leading-[120%] placeholder:font-normal",
-            "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-secondary-100 focus-visible:outline-none"
+            'pl-10',
+            'border-primary',
+            'h-[48px] rounded-[8px] placeholder:text-sm placeholder:text-[#707070] placeholder:leading-[120%] placeholder:font-normal',
+            'focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-secondary-100 focus-visible:outline-none'
           )}
         />
       </div>
@@ -54,7 +59,7 @@ const UsersHeader = () => {
         </DropdownMenu>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default UsersHeader;
+export default UsersHeader
