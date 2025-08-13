@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-// import { useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -46,8 +46,8 @@ export type FAQSingleResponse = {
 
 
 const EditFaqForm = ({ faqId }: { faqId: string }) => {
-//   const session = useSession();
-//   const token = (session?.data?.user as { accessToken: string })?.accessToken;
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const router = useRouter();
   const queryClient = useQueryClient();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -84,7 +84,7 @@ const EditFaqForm = ({ faqId }: { faqId: string }) => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-        //   Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(values),
       }).then((res) => res.json()),
