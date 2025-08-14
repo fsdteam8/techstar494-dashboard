@@ -319,7 +319,7 @@ import {
 } from "@/components/ui/dialog";
 import ProductDetails from "./ProductDetails";
 import AddProductForm from "./AddProductForm";
-// import { useSession } from "next-auth/react";
+
 
 interface ProductPrice {
   unit: string;
