@@ -1,13 +1,16 @@
 "use client";
+import DeleteModal from "@/components/modal/DeleteModal";
 import ErrorContainer from "@/components/shared/shared/ErrorContainer/ErrorContainer";
 import NotFound from "@/components/shared/shared/NotFound/NotFound";
 import TableSkeletonWrapper from "@/components/shared/shared/TableSkeletonWrapper/TableSkeletonWrapper";
 import TechstarPagination from "@/components/ui/TechstarPagination";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, SquarePen, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 type Blog = {
   _id: string;
@@ -35,6 +38,11 @@ type BlogListResponse = {
 
 const AllBlogsContainer = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
+  const session = useSession();
+  const queryClient = useQueryClient();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
 
   const { data, isLoading, isError, error } = useQuery<BlogListResponse>({
     queryKey: ["all-blogs", currentPage],
@@ -44,7 +52,34 @@ const AllBlogsContainer = () => {
       ).then((res) => res.json()),
   });
 
-  console.log(data);
+  // delete api logic
+  const { mutate: deleteBlog } = useMutation({
+    mutationKey: ["delete-blog"],
+    mutationFn: (id: string) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/blog/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((res) => res.json()),
+    onSuccess: (data) => {
+      if (!data?.status) {
+        toast.error(data?.message || "Failed to delete blog");
+        return;
+      } else {
+        toast.success(data?.message || "Blog deleted successfully");
+      }
+      queryClient.invalidateQueries({ queryKey: ["all-blogs"] });
+    },
+  });
+
+  // delete modal logic
+  const handleDelete = () => {
+    if (selectedBlogId) {
+      deleteBlog(selectedBlogId);
+    }
+    setDeleteModalOpen(false);
+  };
   if (isLoading) {
     return (
       <div className="my-10 rounded-lg">
@@ -97,6 +132,10 @@ const AllBlogsContainer = () => {
                     </button>
                   </Link>
                   <button
+                    onClick={() => {
+                      setDeleteModalOpen(true);
+                      setSelectedBlogId(blog?._id);
+                    }}
                     type="button"
                     className="bg-white rounded-full p-3 shadow-md hover:bg-gray-100 transition"
                     aria-label="Edit blog"
@@ -114,7 +153,10 @@ const AllBlogsContainer = () => {
                 <h3 className="text-xl font-medium text-[#2F2F2F] leading-[120%] pt-4 pb-3">
                   {blog.blogTitle}
                 </h3>
-                <p dangerouslySetInnerHTML={{ __html: blog.blogDescription }} className="text-sm font-normal text-[#707070] leading-[120%] line-clamp-2"/>
+                <p
+                  dangerouslySetInnerHTML={{ __html: blog.blogDescription }}
+                  className="text-sm font-normal text-[#707070] leading-[120%] line-clamp-2"
+                />
                 <button className="mt-4 flex items-center gap-2 text-base font-medium text-[#6B46C1] leading-[120%]">
                   Read More <ArrowRight className="text-[#6B46C1] w-5 h-5" />
                 </button>
@@ -139,6 +181,15 @@ const AllBlogsContainer = () => {
             />
           </div>
         </div>
+      )}
+
+      {/* delete modal  */}
+      {deleteModalOpen && (
+        <DeleteModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleDelete}
+        />
       )}
     </div>
   );
