@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import TechstarPagination from '@/components/ui/TechstarPagination'
 import { Loader2 } from 'lucide-react'
+import { useDebounce } from '@/hooks/useDebounce'
 
 interface UsersContainerProps {
   search: string
@@ -39,9 +40,11 @@ const fetchUsers = async (
 const UsersContainer: React.FC<UsersContainerProps> = ({ search }) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
+  const debouncedSeach = useDebounce(search, 500)
+
   const { data, isLoading, isError, error } = useQuery<UsersApiResponse>({
-    queryKey: ['users', currentPage, search],
-    queryFn: () => fetchUsers(currentPage, search),
+    queryKey: ['users', currentPage, debouncedSeach],
+    queryFn: () => fetchUsers(currentPage, debouncedSeach),
     // keepPreviousData: true,
   })
 
