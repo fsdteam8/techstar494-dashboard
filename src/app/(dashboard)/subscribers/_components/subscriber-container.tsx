@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useSession } from 'next-auth/react'
+import { SubscribersApiResponse } from '../../../../../types/subscribers.types'
 
 interface SubscriberContainerProps {
   search: string
@@ -27,7 +28,7 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
   const [currentPage, setCurrentPage] = useState(1)
   const debouncedSearch = useDebounce(search, 500)
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error } = useQuery<SubscribersApiResponse>({
     queryKey: ['all-subscribers', debouncedSearch, currentPage],
     queryFn: () =>
       fetch(
@@ -107,21 +108,21 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
                     className="w-[60px] h-[60px] rounded-[8px]"
                   />
                   <span className="text-lg text-[#111827] font-semibold">
-                    {subscriber.email}
+                    {subscriber?.email}
                   </span>
                 </td>
                 <td className="text-sm text-[#6B7280] text-center py-4 px-4">
-                  {new Date(subscriber.subscribedAt).toLocaleDateString()}
+                  {new Date(subscriber?.subscribedAt).toLocaleDateString()}
                 </td>
                 <td className="text-center py-4 px-4">
                   <span
                     className={`px-3 py-1 rounded-full text-sm ${
-                      subscriber.isActive
+                      subscriber?.isActive
                         ? 'bg-[#D5FFD5] text-green-700'
                         : 'bg-[#FFD5D5] text-red-700'
                     }`}
                   >
-                    {subscriber.isActive ? 'Active' : 'Inactive'}
+                    {subscriber?.isActive ? 'Active' : 'Inactive'}
                   </span>
                 </td>
               </tr>

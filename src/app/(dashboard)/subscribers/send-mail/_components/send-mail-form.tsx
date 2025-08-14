@@ -15,10 +15,10 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useMutation } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import QuillEditor from '@/components/ui/quill-editor'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
 
 const FormSchema = z.object({
   subject: z.string().min(1, 'Subject is required'),
