@@ -18,6 +18,7 @@ import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import QuillEditor from '@/components/ui/quill-editor'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 const FormSchema = z.object({
   subject: z.string().min(1, 'Subject is required'),
@@ -25,8 +26,7 @@ const FormSchema = z.object({
 })
 
 const SendMailForm = () => {
-  // const token =
-  //   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTAxNDQ0ODEsImV4cCI6MTc1MDc0OTI4MX0.53v3kiN47F5nLKQgdJjMmIz_gfSfULxf6NIR94RZft8'
+  const router = useRouter()
 
   const session = useSession()
   const token = (session?.data?.user as { accessToken: string })?.accessToken
@@ -70,6 +70,7 @@ const SendMailForm = () => {
       }
       toast.success(data?.message || 'Email sent successfully')
       form.reset()
+      router.push('/subscribers')
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to send email')
