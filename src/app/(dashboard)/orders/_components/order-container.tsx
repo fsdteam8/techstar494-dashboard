@@ -41,7 +41,6 @@ interface OrdersContainerProps {
 const OrdersContainer: React.FC<OrdersContainerProps> = ({ search }) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
-  // ✅ debounce search
   const debouncedSearch = useDebounce(search, 500)
 
   const { data, isLoading, isError, error } = useQuery<OrdersApiResponse>({
