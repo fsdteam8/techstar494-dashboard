@@ -17,9 +17,6 @@
 // import ProductDetails from "./ProductDetails";
 // import { useSession } from "next-auth/react";
 
-
-
-
 // interface ProductPrice {
 //   unit: string;
 //   quantity: number;
@@ -34,7 +31,7 @@
 //   prices: ProductPrice[];
 //   photo: string[];
 //   createdAt: string;
-//   slug: string; 
+//   slug: string;
 // }
 
 // interface ApiResponse {
@@ -50,7 +47,7 @@
 // }
 
 // const fetchProducts = async (page: number): Promise<ApiResponse> => {
-//   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products?page=${page}`);
+//   const response = await fetch(${process.env.NEXT_PUBLIC_BACKEND_URL}/products?page=${page});
 //   if (!response.ok) {
 //     throw new Error("Failed to fetch products");
 //   }
@@ -58,7 +55,7 @@
 // };
 
 // const deleteProduct = async (productId: string): Promise<void> => {
-//   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}`, {
+//   const response = await fetch(${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}, {
 //     method: "DELETE",
 //   });
 //   if (!response.ok) {
@@ -298,8 +295,6 @@
 //   );
 // }
 
-
-
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -319,7 +314,6 @@ import {
 } from "@/components/ui/dialog";
 import ProductDetails from "./ProductDetails";
 import AddProductForm from "./AddProductForm";
-// import { useSession } from "next-auth/react";
 
 interface ProductPrice {
   unit: string;
@@ -351,7 +345,9 @@ interface ApiResponse {
 }
 
 const fetchProducts = async (page: number): Promise<ApiResponse> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products?page=${page}`);
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/products?page=${page}`
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch products");
   }
@@ -359,28 +355,37 @@ const fetchProducts = async (page: number): Promise<ApiResponse> => {
 };
 
 const deleteProduct = async (productId: string): Promise<void> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}`, {
-    method: "DELETE",
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}`,
+    {
+      method: "DELETE",
+    }
+  );
   if (!response.ok) {
     throw new Error("Failed to delete product");
   }
 };
 
 export default function ProductsTable() {
+
+
   const [currentPage, setCurrentPage] = useState(1);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
-  const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null);
+  const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(
+    null
+  );
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const queryClient = useQueryClient();
-  // const { data: session } = useSession();
-  // const token = (session?.user as { accessToken: string })?.accessToken;
+
+ 
 
   const { data, isLoading, error } = useQuery<ApiResponse>({
     queryKey: ["products", currentPage],
     queryFn: () => fetchProducts(currentPage),
   });
+  
+  console.log(data?.data)
 
   const deleteMutation = useMutation({
     mutationFn: deleteProduct,
@@ -424,11 +429,20 @@ export default function ProductsTable() {
   }
 
   if (selectedProductSlug) {
-    return <ProductDetails slug={selectedProductSlug} onBack={handleBackToTable} />;
+    return (
+      <ProductDetails slug={selectedProductSlug} onBack={handleBackToTable} />
+    );
   }
 
   if (editProduct) {
-    return <AddProductForm isEditing={true} editProduct={editProduct} onSave={handleBackToTable} onCancel={handleBackToTable} />;
+    return (
+      <AddProductForm
+        isEditing={true}
+        editProduct={editProduct}
+        onSave={handleBackToTable}
+        onCancel={handleBackToTable}
+      />
+    );
   }
 
   return (
@@ -472,7 +486,10 @@ export default function ProductsTable() {
                 <div className="h-4 w-24 bg-gray-200 rounded hidden md:block col-span-1"></div>
                 <div className="flex items-center justify-end gap-2 col-span-1">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                    <div
+                      key={i}
+                      className="w-8 h-8 bg-gray-200 rounded-full"
+                    ></div>
                   ))}
                 </div>
               </div>
@@ -481,7 +498,7 @@ export default function ProductsTable() {
         ) : (
           /* Product Rows */
           <div className="divide-y divide-gray-100">
-            {data?.data.map((product) => (
+            {data?.data?.map((product) => (
               <div
                 key={product._id}
                 className="grid grid-cols-[1fr_1fr_auto_auto_auto] md:grid-cols-[2fr_2fr_1fr_1fr_1fr] gap-4 p-4 items-center"
@@ -496,8 +513,12 @@ export default function ProductsTable() {
                     className="rounded-lg object-cover aspect-square"
                   />
                   <div className="grid gap-1">
-                    <h3 className="font-semibold text-[18px] text-[#111827]">{product.name}</h3>
-                    <p className="text-xs text-[#111827] font-normal line-clamp-2">{product.description}</p>
+                    <h3 className="font-semibold text-[18px] text-[#111827]">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-[#111827] font-normal line-clamp-2">
+                      {product.description}
+                    </p>
                   </div>
                 </div>
 
@@ -506,7 +527,9 @@ export default function ProductsTable() {
                   {product.benefits.map((benefit, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <ChevronUp className="w-3 h-3 text-gray-400" />
-                      <span className="text-[#111827] text-sm font-normal">{benefit}</span>
+                      <span className="text-[#111827] text-sm font-normal">
+                        {benefit}
+                      </span>
                       <span className="text-[#111827] text-sm font-medium ml-auto hidden md:inline">
                         {product.prices[0]?.quantity} {product.prices[0]?.unit}
                       </span>
@@ -568,7 +591,8 @@ export default function ProductsTable() {
             <DialogHeader>
               <DialogTitle>Confirm Deletion</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete this product? This action cannot be undone.
+                Are you sure you want to delete this product? This action cannot
+                be undone.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -597,7 +621,7 @@ export default function ProductsTable() {
         {/* Pagination */}
         <div className="bg-white flex items-center justify-between py-[10px] px-4">
           <p className="text-sm font-medium leading-[120%] text-[#707070]">
-            Showing {currentPage} to {data?.meta.currentPage} of {data?.meta.totalPages} results
+            Showing page {currentPage} of {data?.meta.totalPages} results
           </p>
           {data?.meta && (
             <div className="p-4 border-t border-[#FFFFFF] text-sm text-gray-600">

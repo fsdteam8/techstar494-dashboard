@@ -1,11 +1,12 @@
-import React from 'react'
+import React from "react";
+import CouponContainer from "./_components/coupon-container";
 
 const CouponPage = () => {
   return (
     <div>
-      coupon page
+      <CouponContainer />
     </div>
-  )
-}
+  );
+};
 
-export default CouponPage
+export default CouponPage;
