@@ -1,96 +1,84 @@
 "use client";
+import ErrorContainer from "@/components/shared/shared/ErrorContainer/ErrorContainer";
+import NotFound from "@/components/shared/shared/NotFound/NotFound";
+import TableSkeletonWrapper from "@/components/shared/shared/TableSkeletonWrapper/TableSkeletonWrapper";
 import TechstarPagination from "@/components/ui/TechstarPagination";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, SquarePen, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
-interface BlogType {
-  id: number;
-  title: string;
-  description: string;
-  img: string;
-}
+type Blog = {
+  _id: string;
+  blogTitle: string;
+  blogDescription: string; // can contain HTML or plain text
+  image: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+};
 
-const allBlogData: BlogType[] = [
-  {
-    id: 1,
-    title:
-      "Sativa vs. Indica vs. Hybrid: Which Cannabis Strain is Right for You?",
-    description:
-      "Indica, Sativa, and Hybrid! These three names are like the magic words for any cannabis lover that open the door to a vibrant world of unique experiences! Right? These are the main types of cannabis strains, each with distinct characteristics and effects.",
-    img: "/assets/images/blog.png",
-  },
-  {
-    id: 2,
-    title:
-      "Sativa vs. Indica vs. Hybrid: Which Cannabis Strain is Right for You?",
-    description:
-      "Indica, Sativa, and Hybrid! These three names are like the magic words for any cannabis lover that open the door to a vibrant world of unique experiences! Right? These are the main types of cannabis strains, each with distinct characteristics and effects.",
-    img: "/assets/images/blog.png",
-  },
-  {
-    id: 3,
-    title:
-      "Sativa vs. Indica vs. Hybrid: Which Cannabis Strain is Right for You?",
-    description:
-      "Indica, Sativa, and Hybrid! These three names are like the magic words for any cannabis lover that open the door to a vibrant world of unique experiences! Right? These are the main types of cannabis strains, each with distinct characteristics and effects.",
-    img: "/assets/images/blog.png",
-  },
-  {
-    id: 4,
-    title:
-      "Sativa vs. Indica vs. Hybrid: Which Cannabis Strain is Right for You?",
-    description:
-      "Indica, Sativa, and Hybrid! These three names are like the magic words for any cannabis lover that open the door to a vibrant world of unique experiences! Right? These are the main types of cannabis strains, each with distinct characteristics and effects.",
-    img: "/assets/images/blog.png",
-  },
-  {
-    id: 5,
-    title:
-      "Sativa vs. Indica vs. Hybrid: Which Cannabis Strain is Right for You?",
-    description:
-      "Indica, Sativa, and Hybrid! These three names are like the magic words for any cannabis lover that open the door to a vibrant world of unique experiences! Right? These are the main types of cannabis strains, each with distinct characteristics and effects.",
-    img: "/assets/images/blog.png",
-  },
-  {
-    id: 6,
-    title:
-      "Sativa vs. Indica vs. Hybrid: Which Cannabis Strain is Right for You?",
-    description:
-      "Indica, Sativa, and Hybrid! These three names are like the magic words for any cannabis lover that open the door to a vibrant world of unique experiences! Right? These are the main types of cannabis strains, each with distinct characteristics and effects.",
-    img: "/assets/images/blog.png",
-  },
-  {
-    id: 7,
-    title:
-      "Sativa vs. Indica vs. Hybrid: Which Cannabis Strain is Right for You?",
-    description:
-      "Indica, Sativa, and Hybrid! These three names are like the magic words for any cannabis lover that open the door to a vibrant world of unique experiences! Right? These are the main types of cannabis strains, each with distinct characteristics and effects.",
-    img: "/assets/images/blog.png",
-  },
-  {
-    id: 8,
-    title:
-      "Sativa vs. Indica vs. Hybrid: Which Cannabis Strain is Right for You?",
-    description:
-      "Indica, Sativa, and Hybrid! These three names are like the magic words for any cannabis lover that open the door to a vibrant world of unique experiences! Right? These are the main types of cannabis strains, each with distinct characteristics and effects.",
-    img: "/assets/images/blog.png",
-  },
-];
+type BlogListMeta = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+type BlogListResponse = {
+  status: boolean;
+  message: string;
+  data: Blog[];
+  meta: BlogListMeta;
+};
 
 const AllBlogsContainer = () => {
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { data, isLoading, isError, error } = useQuery<BlogListResponse>({
+    queryKey: ["all-blogs", currentPage],
+    queryFn: () =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/blog?page=${currentPage}&limit=8`
+      ).then((res) => res.json()),
+  });
+
+  console.log(data);
+  if (isLoading) {
+    return (
+      <div className="my-10 rounded-lg">
+        <TableSkeletonWrapper count={6} />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="my-10 rounded-lg">
+        <ErrorContainer message={error?.message || "Something went wrong"} />
+      </div>
+    );
+  }
+
+  if (data && data?.data && data?.data?.length === 0) {
+    return (
+      <div className="my-10 rounded-lg">
+        <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-[64px]">
-        {allBlogData?.map((blog) => {
+        {data?.data?.map((blog) => {
           return (
-            <div key={blog.id} className="pb-[64px]">
+            <div key={blog._id} className="pb-[64px]">
               <div className="relative">
                 <Image
-                  src={blog.img}
-                  alt={blog.title}
+                  src={blog.image}
+                  alt={blog.blogTitle}
                   width={364}
                   height={330}
                   className="w-full h-[330px] object-cover rounded-[16px]"
@@ -99,14 +87,14 @@ const AllBlogsContainer = () => {
 
                 {/* Overlay Icon */}
                 <div className="absolute top-6 right-6 flex items-center gap-4">
-                  <Link href={`/documents/all-blogs/edit-blog/${blog.id}`}>
-                  <button
-                    type="button"
-                    className="bg-white rounded-full p-3 shadow-md hover:bg-gray-100 transition"
-                    aria-label="Edit blog"
-                  >
-                    <SquarePen className="text-[#6B46C1] w-4 h-4" />
-                  </button>
+                  <Link href={`/documents/all-blogs/edit-blog/${blog._id}`}>
+                    <button
+                      type="button"
+                      className="bg-white rounded-full p-3 shadow-md hover:bg-gray-100 transition"
+                      aria-label="Edit blog"
+                    >
+                      <SquarePen className="text-[#6B46C1] w-4 h-4" />
+                    </button>
                   </Link>
                   <button
                     type="button"
@@ -124,11 +112,9 @@ const AllBlogsContainer = () => {
                   <span>Ravi</span>
                 </p>
                 <h3 className="text-xl font-medium text-[#2F2F2F] leading-[120%] pt-4 pb-3">
-                  {blog.title}
+                  {blog.blogTitle}
                 </h3>
-                <p className="text-sm font-normal text-[#707070] leading-[120%] line-clamp-2">
-                  {blog.description}
-                </p>
+                <p dangerouslySetInnerHTML={{ __html: blog.blogDescription }} className="text-sm font-normal text-[#707070] leading-[120%] line-clamp-2"/>
                 <button className="mt-4 flex items-center gap-2 text-base font-medium text-[#6B46C1] leading-[120%]">
                   Read More <ArrowRight className="text-[#6B46C1] w-5 h-5" />
                 </button>
@@ -137,19 +123,23 @@ const AllBlogsContainer = () => {
           );
         })}
       </div>
-      <div className="bg-transparent flex items-center justify-between py-[10px] px-4 pb-[37px]">
-        <p className="text-sm font-medium leading-[120%]  text-[#707070]">
-          Showing {currentPage} to 8 of {10} results
-        </p>
+      {/* pagination  */}
+      {data && data?.meta && data?.meta?.totalPages > 1 && (
+        <div className="bg-transparent flex items-center justify-between py-[10px] px-4 pb-[37px]">
+          <p className="text-sm font-medium leading-[120%]  text-[#707070]">
+            Showing {currentPage} to {data && data?.meta && data?.meta?.limit}{" "}
+            of {data && data?.meta && data?.meta?.totalPages} results
+          </p>
 
-        <div>
-          <TechstarPagination
-            totalPages={10}
-            currentPage={currentPage}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+          <div>
+            <TechstarPagination
+              totalPages={data && data?.meta && data?.meta?.totalPages}
+              currentPage={currentPage}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
