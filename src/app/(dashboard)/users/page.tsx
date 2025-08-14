@@ -1,12 +1,16 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import UsersContainer from './_components/users-container'
 import UsersHeader from './_components/users-header'
 
-const UserPage = () => {
+const UserPage: React.FC = () => {
+  const [search, setSearch] = useState<string>('')
+
   return (
     <div>
-      <UsersHeader/>
-      <UsersContainer/>
+      <UsersHeader search={search} setSearch={setSearch} />
+      <UsersContainer search={search} />
     </div>
   )
 }
