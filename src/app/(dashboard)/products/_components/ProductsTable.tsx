@@ -50,7 +50,7 @@
 // }
 
 // const fetchProducts = async (page: number): Promise<ApiResponse> => {
-//   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products?page=${page}`);
+//   const response = await fetch(${process.env.NEXT_PUBLIC_BACKEND_URL}/products?page=${page});
 //   if (!response.ok) {
 //     throw new Error("Failed to fetch products");
 //   }
@@ -58,7 +58,7 @@
 // };
 
 // const deleteProduct = async (productId: string): Promise<void> => {
-//   const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}`, {
+//   const response = await fetch(${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}, {
 //     method: "DELETE",
 //   });
 //   if (!response.ok) {
@@ -319,7 +319,7 @@ import {
 } from "@/components/ui/dialog";
 import ProductDetails from "./ProductDetails";
 import AddProductForm from "./AddProductForm";
-// import { useSession } from "next-auth/react";
+
 
 interface ProductPrice {
   unit: string;
@@ -351,7 +351,7 @@ interface ApiResponse {
 }
 
 const fetchProducts = async (page: number): Promise<ApiResponse> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products?page=${page}`);
+  const response = await fetch(${process.env.NEXT_PUBLIC_BACKEND_URL}/products?page=${page});
   if (!response.ok) {
     throw new Error("Failed to fetch products");
   }
@@ -359,7 +359,7 @@ const fetchProducts = async (page: number): Promise<ApiResponse> => {
 };
 
 const deleteProduct = async (productId: string): Promise<void> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}`, {
+  const response = await fetch(${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${productId}, {
     method: "DELETE",
   });
   if (!response.ok) {
