@@ -22,7 +22,7 @@ import { toast } from "react-toastify";
 // ✅ Zod schema with validation rules
 const formSchema = z
   .object({
-    oldPassword: z
+    currentPassword: z
       .string()
       .min(6, "Current password must be at least 6 characters."),
     newPassword: z
@@ -47,7 +47,7 @@ export default function ChangePasswordForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      oldPassword: "",
+      currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     },
@@ -55,7 +55,7 @@ export default function ChangePasswordForm() {
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["changePassword"],
-    mutationFn: (values: { oldPassword: string; newPassword: string }) =>
+    mutationFn: (values: { currentPassword: string; newPassword: string }) =>
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/change-password`, {
         method: "POST",
         headers: {
@@ -65,7 +65,7 @@ export default function ChangePasswordForm() {
         body: JSON.stringify(values),
       }).then((res) => res.json()),
     onSuccess: (data) => {
-      if (!data?.status) {
+      if (!data?.success) {
         toast.error(data?.message || "Something went wrong");
         return;
       }
@@ -75,9 +75,9 @@ export default function ChangePasswordForm() {
   });
 
   const onSubmit = (values: FormValues) => {
-    console.log("Submitted Data:", values);
+    // console.log("Submitted Data:", values);
     const payload = {
-      oldPassword: values?.oldPassword,
+      currentPassword: values?.currentPassword,
       newPassword: values?.newPassword,
     };
     mutate(payload);
@@ -97,7 +97,7 @@ export default function ChangePasswordForm() {
             {/* Current Password */}
             <FormField
               control={form.control}
-              name="oldPassword"
+              name="currentPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium text-black leading-[120%]">
