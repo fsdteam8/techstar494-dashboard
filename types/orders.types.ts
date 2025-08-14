@@ -1,11 +1,10 @@
 export interface Order {
   _id: string
-  billingInfo: {
-    fullName: string
-    address: string
+  user: {
+    firstName: string
+    lastName: string
+    userName: string
     email: string
-    phone: string
-    isSaved: boolean
   }
   product: {
     _id: string

@@ -1,18 +1,32 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import TechstarPagination from '@/components/ui/TechstarPagination'
-import { OrdersApiResponse } from '../../../../../types/orders.types'
 import { Loader2 } from 'lucide-react'
+import { useDebounce } from '@/hooks/useDebounce'
+import { OrdersApiResponse } from '../../../../../types/orders.types'
 
 // -------- API Fetch Function --------
-const fetchOrders = async (page: number): Promise<OrdersApiResponse> => {
+const fetchOrders = async (
+  page: number,
+  search: string
+): Promise<OrdersApiResponse> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: '8',
+  })
+
+  if (search.trim()) {
+    params.append('search', search.trim())
+  }
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/order?page=${page}&limit=8`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/order?${params.toString()}`,
     { cache: 'no-store' }
   )
+
   if (!res.ok) {
     throw new Error('Failed to fetch orders')
   }
@@ -20,15 +34,20 @@ const fetchOrders = async (page: number): Promise<OrdersApiResponse> => {
 }
 
 // -------- Component --------
-const OrdersContainer = () => {
-  const [currentPage, setCurrentPage] = useState(1)
+interface OrdersContainerProps {
+  search: string
+}
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['orders', currentPage],
-    queryFn: () => fetchOrders(currentPage),
+const OrdersContainer: React.FC<OrdersContainerProps> = ({ search }) => {
+  const [currentPage, setCurrentPage] = useState<number>(1)
+
+  // ✅ debounce search
+  const debouncedSearch = useDebounce(search, 500)
+
+  const { data, isLoading, isError, error } = useQuery<OrdersApiResponse>({
+    queryKey: ['orders', currentPage, debouncedSearch],
+    queryFn: () => fetchOrders(currentPage, debouncedSearch),
   })
-
-  console.log('Orders data:', data)
 
   if (isLoading) {
     return (
@@ -53,13 +72,13 @@ const OrdersContainer = () => {
         <thead className="bg-[#F9FAFB] rounded-t-[8px]">
           <tr className="w-full grid grid-cols-5 py-3 px-4">
             <th className="text-sm text-[#6B7280] font-medium text-left">
-              Customer Name
+              Customer
             </th>
             <th className="text-sm text-[#6B7280] font-medium text-center">
-              Ordered Product
+              Product
             </th>
             <th className="text-sm text-[#6B7280] font-medium text-center">
-              Purchased Date
+              Date
             </th>
             <th className="text-sm text-[#6B7280] font-medium text-center">
               Price
@@ -75,38 +94,42 @@ const OrdersContainer = () => {
               key={order._id}
               className="w-full bg-white grid grid-cols-5 p-4 mb-[2px]"
             >
-              {/* Customer Name */}
+              {/* Customer */}
               <td className="flex items-center gap-2">
                 <Image
                   src={order.product?.photo[0] || '/assets/images/user.jpg'}
-                  alt={order.billingInfo?.fullName || 'Order Image'}
+                  alt={order.user?.userName || 'Customer'}
                   width={60}
                   height={60}
                   className="w-[60px] h-[60px] rounded-[8px]"
                 />
                 <div>
                   <p className="text-lg text-[#111827] font-semibold">
-                    {order.billingInfo?.fullName}
+                    {order.user?.firstName || order.user?.lastName
+                      ? `${order.user?.firstName ?? ''} ${
+                          order.user?.lastName ?? ''
+                        }`
+                      : order.user?.userName}
                   </p>
                   <p className="text-sm text-[#6B7280]">
-                    {order.billingInfo?.email}
+                    {order.user?.userName}
                   </p>
                 </div>
               </td>
 
-              {/* Ordered Product */}
+              {/* Product */}
               <td className="flex items-center justify-center text-sm text-[#6B7280]">
                 {order.product?.name}
               </td>
 
-              {/* Purchased Date */}
+              {/* Date */}
               <td className="flex items-center justify-center text-sm text-[#6B7280]">
                 {new Date(order.createdAt).toLocaleDateString()}
               </td>
 
               {/* Price */}
               <td className="flex items-center justify-center text-sm text-[#6B7280]">
-                ${order.totalAmount.toFixed(2)}
+                ${order.totalAmount?.toFixed(2)}
               </td>
 
               {/* Status */}

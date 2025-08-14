@@ -1,20 +1,24 @@
-"use client";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { ListFilter, Search } from "lucide-react";
-import React, { useState } from "react";
+'use client'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
+import { ListFilter, Search } from 'lucide-react'
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu'
 
-const OrderHeader = () => {
-  const [search, setSearch] = useState("");
+interface OrderHeaderProps {
+  search: string
+  setSearch: React.Dispatch<React.SetStateAction<string>>
+}
+
+const OrderHeader: React.FC<OrderHeaderProps> = ({ search, setSearch }) => {
   return (
     <div className="w-full flex items-center justify-between">
+      {/* Title */}
       <div>
         <h2 className="text-xl font-bold text-[#1F2937] leading-[120%]">
           Orders List
@@ -23,6 +27,8 @@ const OrderHeader = () => {
           See your orders list.
         </p>
       </div>
+
+      {/* Search Bar */}
       <div className="relative w-1/3">
         <Search
           className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#707070]"
@@ -30,17 +36,19 @@ const OrderHeader = () => {
         />
         <Input
           type="search"
-          placeholder="Search by name/product"
+          placeholder="Search by order ID, customer, or product"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className={cn(
-            "pl-10",
-            "border-primary",
-            "h-[48px] rounded-[8px] placeholder:text-sm placeholder:text-[#707070] placeholder:leading-[120%] placeholder:font-normal",
-            "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-secondary-100 focus-visible:outline-none"
+            'pl-10',
+            'border-primary',
+            'h-[48px] rounded-[8px] placeholder:text-sm placeholder:text-[#707070] placeholder:leading-[120%] placeholder:font-normal',
+            'focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-secondary-100 focus-visible:outline-none'
           )}
         />
       </div>
+
+      {/* Filters */}
       <div>
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-[10px] py-[15px] px-[32px] rounded-[8px] border-[1.5px] border-primary text-sm font-medium text-black leading-[120%]">
@@ -50,11 +58,12 @@ const OrderHeader = () => {
             <DropdownMenuLabel>Pending</DropdownMenuLabel>
             <DropdownMenuLabel>Ongoing</DropdownMenuLabel>
             <DropdownMenuLabel>Delivered</DropdownMenuLabel>
+            <DropdownMenuLabel>Cancelled</DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default OrderHeader;
+export default OrderHeader
