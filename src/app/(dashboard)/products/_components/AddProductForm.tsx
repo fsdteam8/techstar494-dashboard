@@ -31,7 +31,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import Image from "next/image";
 
 interface ProductPrice {
@@ -213,13 +213,14 @@ export default function AddProductForm({
     },
     onSuccess: (data) => {
       if (data?.success) {
-        toast.success(data?.message || "Product created successfully");
+      
+        toast(data?.message || "Product created successfully", )
         queryClient.invalidateQueries({ queryKey: ["products"] });
         onSave();
       }
     },
-    onError: () => {
-      toast.error("Failed to create product");
+    onError: (error) => {
+    toast( error?.message || "Failed to create product", )
     },
   });
 
@@ -243,13 +244,13 @@ export default function AddProductForm({
     },
     onSuccess: (data) => {
       if (data?.success) {
-        toast.success(data?.message || "Product updated successfully");
+        toast(data?.message || "Product updated successfully", )
         queryClient.invalidateQueries({ queryKey: ["products"] });
         onSave();
       }
     },
-    onError: () => {
-      toast.error("Failed to update product");
+    onError: (error) => {
+      toast(error?.message || "Failed to update product", )
     },
   });
 
@@ -416,7 +417,7 @@ export default function AddProductForm({
             }
           >
             {createProductMutation.isPending ||
-            updateProductMutation.isPending ? (
+              updateProductMutation.isPending ? (
               <span className="flex items-center">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {isEditing ? "Updating..." : "Saving..."}
@@ -549,8 +550,8 @@ export default function AddProductForm({
                   </SelectTrigger>
                   <SelectContent className="!w-[100px] !bg-white rounded-[4px] border border-gray-200 shadow-sm z-50">
                     <SelectItem value="ct">ct</SelectItem>
-                    <SelectItem value="g">g</SelectItem>
-                    <SelectItem value="mg">mg</SelectItem>
+                    <SelectItem value="gm">gm</SelectItem>
+                    <SelectItem value="pc">pc</SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="flex items-center gap-x-2">
