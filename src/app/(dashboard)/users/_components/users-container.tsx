@@ -11,12 +11,14 @@ import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLo
 
 interface UsersContainerProps {
   search: string
+  filter: string
 }
 
 // API function with search parameter
 const fetchUsers = async (
   page: number,
-  search: string
+  search: string,
+  filter: string
 ): Promise<UsersApiResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -25,6 +27,10 @@ const fetchUsers = async (
 
   if (search.trim()) {
     params.append('search', search.trim())
+  }
+
+  if (filter) {
+    params.append('filter', filter)
   }
 
   const res = await fetch(
@@ -38,14 +44,14 @@ const fetchUsers = async (
   return res.json()
 }
 
-const UsersContainer: React.FC<UsersContainerProps> = ({ search }) => {
+const UsersContainer: React.FC<UsersContainerProps> = ({ search, filter }) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   const debouncedSeach = useDebounce(search, 500)
 
   const { data, isLoading, isError, error } = useQuery<UsersApiResponse>({
-    queryKey: ['users', currentPage, debouncedSeach],
-    queryFn: () => fetchUsers(currentPage, debouncedSeach),
+    queryKey: ['users', currentPage, debouncedSeach, filter],
+    queryFn: () => fetchUsers(currentPage, debouncedSeach, filter),
     // keepPreviousData: true,
   })
 
