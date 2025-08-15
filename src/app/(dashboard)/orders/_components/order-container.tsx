@@ -11,7 +11,8 @@ import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLo
 // -------- API Fetch Function --------
 const fetchOrders = async (
   page: number,
-  search: string
+  search: string,
+  filter: string
 ): Promise<OrdersApiResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -20,6 +21,10 @@ const fetchOrders = async (
 
   if (search.trim()) {
     params.append('search', search.trim())
+  }
+
+  if (filter) {
+    params.append('filter', filter)
   }
 
   const res = await fetch(
@@ -33,19 +38,22 @@ const fetchOrders = async (
   return res.json()
 }
 
-// -------- Component --------
 interface OrdersContainerProps {
   search: string
+  filter: string
 }
 
-const OrdersContainer: React.FC<OrdersContainerProps> = ({ search }) => {
+const OrdersContainer: React.FC<OrdersContainerProps> = ({
+  search,
+  filter,
+}) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   const debouncedSearch = useDebounce(search, 500)
 
   const { data, isLoading, isError, error } = useQuery<OrdersApiResponse>({
-    queryKey: ['orders', currentPage, debouncedSearch],
-    queryFn: () => fetchOrders(currentPage, debouncedSearch),
+    queryKey: ['orders', currentPage, debouncedSearch, filter],
+    queryFn: () => fetchOrders(currentPage, debouncedSearch, filter),
   })
 
   const rowsNumber = data?.data.length

@@ -59,17 +59,29 @@ const UsersHeader: React.FC<UsersHeaderProps> = ({
             <ListFilter size={20} className="text-primary" />{' '}
             {filter ? filter : 'Filters'}
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="min-w-[5rem] bg-white">
-            <DropdownMenuLabel onClick={() => setFilter('this-month')}>
+          <DropdownMenuContent className="min-w-[5rem] bg-white cursor-pointer">
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('this-month')}
+            >
               This Month
             </DropdownMenuLabel>
-            <DropdownMenuLabel onClick={() => setFilter('previous-month')}>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('previous-month')}
+            >
               Previous Month
             </DropdownMenuLabel>
-            <DropdownMenuLabel onClick={() => setFilter('last-year')}>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('last-year')}
+            >
               Last Year
             </DropdownMenuLabel>
-            <DropdownMenuLabel onClick={() => setFilter('')}>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('')}
+            >
               Clear Filter
             </DropdownMenuLabel>
           </DropdownMenuContent>
