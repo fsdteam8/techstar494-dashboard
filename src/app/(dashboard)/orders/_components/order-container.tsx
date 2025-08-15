@@ -4,9 +4,9 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import TechstarPagination from '@/components/ui/TechstarPagination'
-import { Loader2 } from 'lucide-react'
 import { useDebounce } from '@/hooks/useDebounce'
 import { OrdersApiResponse } from '../../../../../types/orders.types'
+import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLoader'
 
 // -------- API Fetch Function --------
 const fetchOrders = async (
@@ -48,12 +48,14 @@ const OrdersContainer: React.FC<OrdersContainerProps> = ({ search }) => {
     queryFn: () => fetchOrders(currentPage, debouncedSearch),
   })
 
+  const rowsNumber = data?.data.length
+
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full mt-12">
-        <Loader2 className="animate-spin text-primary mx-auto" />
-        <p className="text-center py-3">Loading orders...</p>
-      </div>
+      <ReusableLoader
+        rows={rowsNumber}
+        headings={['Customer', 'product', 'Date', 'Price', 'Status']}
+      />
     )
   }
 

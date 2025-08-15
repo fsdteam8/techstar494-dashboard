@@ -4,7 +4,7 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import TechstarPagination from '@/components/ui/TechstarPagination'
-import { Loader2, ListFilter } from 'lucide-react'
+import { ListFilter } from 'lucide-react'
 import { useDebounce } from '@/hooks/useDebounce'
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useSession } from 'next-auth/react'
 import { SubscribersApiResponse } from '../../../../../types/subscribers.types'
+import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLoader'
 
 interface SubscriberContainerProps {
   search: string
@@ -45,12 +46,14 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
     enabled: !!token, // only run if token exists
   })
 
+  const rowsNumber = data?.data.length
+
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full mt-12">
-        <Loader2 className="animate-spin text-primary mx-auto" />
-        <p className="text-center py-3">Loading subscribers...</p>
-      </div>
+      <ReusableLoader
+        rows={rowsNumber}
+        headings={['Subscriber Email', 'Subscribed Date', 'Status']}
+      />
     )
   }
 
@@ -107,7 +110,7 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
                     height={60}
                     className="w-[60px] h-[60px] rounded-[8px]"
                   />
-                  <span className="text-lg text-[#111827] font-semibold">
+                  <span className="text-lg text-gray-500 font-semibold">
                     {subscriber?.email}
                   </span>
                 </td>
