@@ -6,58 +6,48 @@ import { Camera, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-export type User = {
-  _id: string;
-  name: string;
-  email: string;
-  dob: string | null;
-  gender: "male" | "female" | "other";
-  role: "ADMIN" | "USER" | "MODERATOR" | string;
-  stripeAccountId: string | null;
-  bio: string;
-  phone: string;
-  profileImage: string;
-  multiProfileImage: string[];
-  pdfFile: string;
-  otp: string | null;
-  otpExpires: string | null;
-  isVerified: boolean;
-  refreshToken: string;
-  lastLoginAt: string;
-  hasActiveSubscription: boolean;
-  subscriptionExpireDate: string | null;
-  blockedUsers: string[];
-  language: string;
-  address: {
-    country: string;
-    cityState: string;
-    roadArea: string;
-    postalCode: string;
-    taxId: string;
-  };
-};
+import { toast } from "react-toastify";
 
-export type UserResponse = {
-  status: boolean;
+type UserProfileResponse = {
+  success: boolean;
   message: string;
-  data: User;
+  data: {
+    lastPurchasedAt: string | null;
+    _id: string;
+    firstName: string | null;
+    lastName: string | null;
+    userName: string;
+    email: string;
+    phone: string | null;
+    country: string | null;
+    state: string | null;
+    city: string | null;
+    address: string | null;
+    texId: string | null;
+    points: number;
+    isActive: boolean;
+    isPaid: boolean;
+    imageLink: string;
+    role: "admin" | "user" | string;
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
+  };
 };
 
 const PersonalInfo = () => {
   const session = useSession();
   const token = (session?.data?.user as { accessToken: string })?.accessToken;
-  const userId = (session?.data?.user as { id: string })?.id;
+  // const userId = (session?.data?.user as { id: string })?.id;
   const queryClient = new QueryClient();
 
-  const [profileImage, setProfileImage] = useState("/images/no-img.webp");
+  const [image, setProfileImage] = useState("/images/no-img.webp");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // get api
-  const { data } = useQuery<UserResponse>({
-    queryKey: ["profile-img", userId],
+  const { data } = useQuery<UserProfileResponse>({
+    queryKey: ["profile-img"],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/${userId}`, {
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/profile`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -65,25 +55,25 @@ const PersonalInfo = () => {
       }).then((res) => res.json()),
   });
 
-  // post api
+  // update api
   const { mutate, isPending } = useMutation({
-    mutationKey: ["upload-profile-image", userId],
+    mutationKey: ["update-profile-image"],
     mutationFn: async (formData: FormData) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/upload-avatar/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/update-profile`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
           },
           body: formData,
-        },
+        }
       );
       if (!res.ok) throw new Error("Upload failed");
       return res.json();
     },
     onSuccess: (data) => {
-      toast.success(data?.message || "Profile image added successfully!");
+      toast.success(data?.message || "Profile image updated successfully!");
       queryClient.invalidateQueries({
         queryKey: ["profile-img"],
       });
@@ -97,39 +87,41 @@ const PersonalInfo = () => {
 
   // delete api
   const { mutate: deleteImage } = useMutation({
-    mutationKey: ["delete-profile-image", userId],
+    mutationKey: ["delete-profile-image"],
     mutationFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/upload-avatar/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/delete-profile`,
         {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
       if (!res.ok) throw new Error("Delete failed");
       return res.json();
     },
     onSuccess: (data) => {
-      toast.success(data?.message || "Profile image deleted successfully!");
+      if (data?.success) {
+        toast.success(data?.message || "Profile image deleted successfully");
+        return;
+      }
+      toast.error(data?.message || "Something went wrong");
+
       queryClient.invalidateQueries({
         queryKey: ["profile-img"],
       });
       console.log("Response:", data);
     },
-    onError: (error) => {
-      toast.error("Delete failed");
-      console.error(error);
-    },
+   
   });
 
   useEffect(() => {
-    const profileImage = data?.data?.profileImage;
-    if (profileImage) {
-      setProfileImage(profileImage);
+    const image = data?.data?.imageLink;
+    if (image) {
+      setProfileImage(image);
     }
-  }, [data?.data?.profileImage]);
+  }, [data?.data?.imageLink]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -144,7 +136,7 @@ const PersonalInfo = () => {
 
     // Upload file to backend
     const formData = new FormData();
-    formData.append("profileImage", file, file.name);
+    formData.append("image", file, file.name);
     mutate(formData);
   };
 
@@ -153,11 +145,11 @@ const PersonalInfo = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-4 mb-8 bg-[#6459490D] px-6 py-8 rounded-[12px] relative mt-8">
+    <div className="flex flex-col md:flex-row items-center gap-4 mb-8 border border-[#B0B0B0] p-6 rounded-[12px] relative mt-8">
       <div className="relative">
         <div className="w-32 h-32 rounded-full overflow-hidden border relative">
           <Image
-            src={profileImage}
+            src={image}
             alt="Profile"
             width={128}
             height={128}
@@ -197,9 +189,8 @@ const PersonalInfo = () => {
         </div>
       </div>
       <div className="h-full flex flex-col items-start justify-center">
-        <h4>{data?.data?.name}</h4>
+        <h4>{data?.data?.userName}</h4>
         <p>{data?.data?.email}</p>
-        <p>{data?.data?.address?.cityState} , {data?.data?.address?.country}</p>
       </div>
     </div>
   );

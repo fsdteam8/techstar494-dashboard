@@ -14,31 +14,50 @@ import {
 } from "@/components/ui/form";
 import QuillEditor from "@/components/ui/quill-editor";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ImagePlus, Upload, X } from "lucide-react";
 import Image from "next/image";
-// import { useMutation, useQueryClient } from "@tanstack/react-query";
-// import { toast } from "react-toastify";
-// import { useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
+type Blog = {
+  _id: string;
+  blogTitle: string;
+  blogDescription: string;
+  image: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+};
+
+type SingleBlogResponse = {
+  status: boolean;
+  message: string;
+  data: Blog;
+};
 
 const FormSchema = z.object({
-  description: z.string().min(1, "Description is required"),
-  title: z.string().min(1, "Title is required"),
+  blogDescription: z.string().min(1, "Description is required"),
+  blogTitle: z.string().min(1, "Title is required"),
   image: z.any().optional(),
 });
 
 const EditBlogForm = ({ blogId }: { blogId: string }) => {
-  //   const router = useRouter();
-  //   const queryClient = useQueryClient();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const session = useSession();
+  const token = (session?.data?.user as { accessToken: string })?.accessToken;
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  console.log(blogId)
+  console.log(blogId);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      blogTitle: "",
+      blogDescription: "",
       image: undefined,
     },
   });
@@ -73,32 +92,55 @@ const EditBlogForm = ({ blogId }: { blogId: string }) => {
     setIsDragOver(false);
   };
 
-  //   const { mutate, isPending } = useMutation({
-  //     mutationKey: ["add-privacy-policy"],
-  //     mutationFn: (values: z.infer<typeof FormSchema>) =>
-  //       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fadDisclaimer/create`, {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(values),
-  //       }).then((res) => res.json()),
-  //     onSuccess: (data) => {
-  //       if (!data?.success) {
-  //         toast.error(data?.message ?? "Something went wrong");
-  //         return;
-  //       }
+  const { data } = useQuery<SingleBlogResponse>({
+    queryKey: ["single-blog", blogId],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/blog/${blogId}`).then(
+        (res) => res.json()
+      ),
+  });
 
-  //       toast.success(data?.message ?? "Privacy Policy added successfully");
-  //       form.reset();
-  //       router.push("/documents/privacy-policy");
-  //       queryClient.invalidateQueries({ queryKey: ["privacy-policy"] });
-  //     },
-  //   });
+  useEffect(() => {
+    if (data) {
+      form.setValue("blogTitle", data.data.blogTitle);
+      form.setValue("blogDescription", data.data.blogDescription);
+      setPreviewImage(data.data.image);
+    }
+  }, [data, form]);
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["update-blog", blogId],
+    mutationFn: (fromData: FormData) =>
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/blog/${blogId}`, {
+        method: "PUT",
+        headers: {
+          // "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: fromData,
+      }).then((res) => res.json()),
+    onSuccess: (data) => {
+      if (!data?.status) {
+        toast.error(data?.message || "Something went wrong");
+        return;
+      } else {
+        toast.success(data?.message || "Blog updated successfully!");
+        form.reset();
+        router.push("/documents/all-blogs");
+        queryClient.invalidateQueries({ queryKey: ["all-blogs"] });
+      }
+    },
+  });
 
   function onSubmit(values: z.infer<typeof FormSchema>) {
     console.log(values);
-    // mutate(values);
+    const formData = new FormData();
+    formData.append("blogTitle", values?.blogTitle);
+    formData.append("blogDescription", values?.blogDescription);
+    if (values.image && values.image[0]) {
+      formData.append("image", values.image[0]);
+    }
+    mutate(formData);
   }
   return (
     <div className="pt-[64px]">
@@ -214,7 +256,7 @@ const EditBlogForm = ({ blogId }: { blogId: string }) => {
             </div>
             <FormField
               control={form.control}
-              name="title"
+              name="blogTitle"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium text-black leading-[120%]">
@@ -233,7 +275,7 @@ const EditBlogForm = ({ blogId }: { blogId: string }) => {
             />
             <FormField
               control={form.control}
-              name="description"
+              name="blogDescription"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-medium text-black leading-[120%]">
@@ -241,7 +283,7 @@ const EditBlogForm = ({ blogId }: { blogId: string }) => {
                   </FormLabel>
                   <FormControl className="h-[347px]">
                     <QuillEditor
-                      id="description"
+                      id="blogDescription"
                       value={field.value}
                       onChange={field.onChange}
                     />
@@ -253,12 +295,13 @@ const EditBlogForm = ({ blogId }: { blogId: string }) => {
           </div>
           <div className="w-full flex items-center justify-end mt-[25px]">
             <button
-              //   disabled={isPending}
-              className="w-[178px] h-[51px] px-8 bg-primary text-white rounded-[8px] text-base font-bold leading-normal "
+              disabled={isPending}
+              className={`w-[178px] h-[51px] px-8 bg-primary text-white rounded-[8px] text-base font-bold leading-normal ${
+                isPending && "cursor-not-allowed opacity-50"
+              }`}
               type="submit"
             >
-              {/* {isPending ? "Sending..." : "Save Changes"} */}
-              Save Changes
+              {isPending ? "Sending..." : "Save Changes"}
             </button>
           </div>
         </form>

@@ -68,6 +68,7 @@ const FaqContainer = () => {
     }
     setDeleteModalOpen(false);
   };
+  
   if (isLoading) {
     return (
       <div className="my-10 rounded-lg">
