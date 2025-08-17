@@ -4,7 +4,7 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import TechstarPagination from '@/components/ui/TechstarPagination'
-import { Loader2, ListFilter } from 'lucide-react'
+import { ListFilter } from 'lucide-react'
 import { useDebounce } from '@/hooks/useDebounce'
 import {
   DropdownMenu,
@@ -15,13 +15,18 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useSession } from 'next-auth/react'
 import { SubscribersApiResponse } from '../../../../../types/subscribers.types'
+import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLoader'
 
 interface SubscriberContainerProps {
   search: string
+  filter: string
+  setFilter: React.Dispatch<React.SetStateAction<string>>
 }
 
 const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
   search,
+  filter,
+  setFilter,
 }) => {
   const session = useSession()
   const token = (session?.data?.user as { accessToken: string })?.accessToken
@@ -29,28 +34,43 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
   const debouncedSearch = useDebounce(search, 500)
 
   const { data, isLoading, isError, error } = useQuery<SubscribersApiResponse>({
-    queryKey: ['all-subscribers', debouncedSearch, currentPage],
-    queryFn: () =>
-      fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/subscriber/all?page=${currentPage}&search=${debouncedSearch}`,
+    queryKey: ['all-subscribers', debouncedSearch, currentPage, filter],
+    queryFn: () => {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: '8',
+      })
+
+      if (debouncedSearch.trim()) {
+        params.append('search', debouncedSearch.trim())
+      }
+
+      if (filter) {
+        params.append('filter', filter)
+      }
+
+      return fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/subscriber/all?${params}`,
         {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-            Accept: 'application/json',
           },
         }
-      ).then((res) => res.json()),
+      ).then((res) => res.json())
+    },
     enabled: !!token, // only run if token exists
   })
 
+  const rowsNumber = data?.data.length
+
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full mt-12">
-        <Loader2 className="animate-spin text-primary mx-auto" />
-        <p className="text-center py-3">Loading subscribers...</p>
-      </div>
+      <ReusableLoader
+        rows={rowsNumber}
+        headings={['Subscriber Email', 'Subscribed Date', 'Status']}
+      />
     )
   }
 
@@ -68,14 +88,36 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
       <div className="w-full flex items-center justify-end py-4">
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-[10px] py-[15px] px-[32px] rounded-[8px] border-[1.5px] border-primary text-sm font-medium text-black leading-[120%]">
-            <ListFilter size={20} className="text-primary" /> Filters
+            <ListFilter size={20} className="text-primary" />{' '}
+            {filter ? filter : 'Filters'}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="min-w-[5rem] bg-[#F0EDF9]">
-            <DropdownMenuLabel>This Month</DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="cursor-pointer hover:bg-gray-100"
+              onClick={() => setFilter('this-month')}
+            >
+              This Month
+            </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-[#B3B3B3]" />
-            <DropdownMenuLabel>Previous Month</DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="cursor-pointer hover:bg-gray-100"
+              onClick={() => setFilter('previous-month')}
+            >
+              Previous Month
+            </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-[#B3B3B3]" />
-            <DropdownMenuLabel>Last Month</DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="cursor-pointer hover:bg-gray-100"
+              onClick={() => setFilter('last-month')}
+            >
+              Last Month
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="cursor-pointer hover:bg-gray-100"
+              onClick={() => setFilter('')}
+            >
+              Clear Filter
+            </DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -107,7 +149,7 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
                     height={60}
                     className="w-[60px] h-[60px] rounded-[8px]"
                   />
-                  <span className="text-lg text-[#111827] font-semibold">
+                  <span className="text-lg text-gray-500 font-semibold">
                     {subscriber?.email}
                   </span>
                 </td>
