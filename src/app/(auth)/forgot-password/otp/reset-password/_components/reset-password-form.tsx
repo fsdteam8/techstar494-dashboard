@@ -35,11 +35,9 @@ const formSchema = z
 const ResetPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const accessToken = searchParams.get("accessToken") || "";
-  
-
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const accessToken = searchParams.get("accessToken") || "";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,10 +69,10 @@ const ResetPasswordForm = () => {
     },
   });
 
-  if(!accessToken){
-  router.push("/login");
-  return;
-}
+  if (!accessToken) {
+    router.push("/login");
+    return;
+  }
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
@@ -172,7 +170,9 @@ const ResetPasswordForm = () => {
 
             <Button
               disabled={isPending}
-              className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"
+              className={`text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] ${
+                isPending ? "opacity-50 cursor-not-allowed" : "bg-primary"
+              }`}
               type="submit"
             >
               {isPending ? "Continuing..." : "Continue"}

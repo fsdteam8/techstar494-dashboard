@@ -51,7 +51,9 @@ const ForgotPasswordForm = () => {
       }
 
       toast.success(data?.message || "Email sent successfully!");
-      router.push(`/forgot-password/otp?accessToken=${data?.data?.accessToken}`)
+      router.push(
+        `/forgot-password/otp?accessToken=${data?.data?.accessToken}`
+      );
     },
 
     onError: (error) => {
@@ -99,10 +101,12 @@ const ForgotPasswordForm = () => {
                 </FormItem>
               )}
             />
-            <div className="pt-5 md:pt-7 lg:pt-8"> 
+            <div className="pt-5 md:pt-7 lg:pt-8">
               <Button
                 disabled={isPending}
-                className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"
+                className={`text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px]  ${
+                  isPending ? "opacity-50 cursor-not-allowed" : "bg-primary"
+                }`}
                 type="submit"
               >
                 {isPending ? "Sending..." : "Send OTP"}
