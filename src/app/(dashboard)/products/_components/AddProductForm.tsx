@@ -1,3 +1,4 @@
+
 "use client";
 
 import type React from "react";
@@ -21,6 +22,7 @@ import {
   UploadCloudIcon,
   X,
   Loader2,
+  FileIcon,
 } from "lucide-react";
 import {
   Popover,
@@ -31,7 +33,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 import Image from "next/image";
 
 interface ProductPrice {
@@ -47,6 +49,7 @@ interface Product {
   benefits: string[];
   prices: ProductPrice[];
   photo: string[];
+  coas?: string[];
   createdAt: string;
   slug: string;
   batch?: string;
@@ -80,6 +83,12 @@ interface Category {
   updatedAt: string;
 }
 
+interface CoaPreview {
+  url: string;
+  name: string;
+  isImage: boolean;
+}
+
 const experiences = [
   "Relaxing",
   "Energizing",
@@ -108,8 +117,11 @@ export default function AddProductForm({
     undefined
   );
   const [coaFiles, setCoaFiles] = useState<File[]>([]);
+  const [coaPreviews, setCoaPreviews] = useState<CoaPreview[]>([]);
+  const [deletedCoas, setDeletedCoas] = useState<string[]>([]);
   const [productImages, setProductImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [deletedPhotos, setDeletedPhotos] = useState<string[]>([]);
   const [priceEntries, setPriceEntries] = useState<PriceEntry[]>([]);
   const [restrictedStates, setRestrictedStates] = useState<string[]>([""]);
   const [currentUnit, setCurrentUnit] = useState("ct");
@@ -141,6 +153,13 @@ export default function AddProductForm({
           : undefined
       );
       setImagePreviews(editProduct.photo || []);
+      setCoaPreviews(
+        (editProduct.coas || []).map((url) => ({
+          url,
+          name: url.split("/").pop() || "COA File",
+          isImage: !url.toLowerCase().endsWith(".pdf"),
+        }))
+      );
       setPriceEntries(
         editProduct.prices.map((price) => ({
           id: `${price.unit}-${price.quantity}-${price.price}`,
@@ -155,7 +174,6 @@ export default function AddProductForm({
           : [""]
       );
       setSelectedCategoryId(editProduct.category || "");
-      // Handle experiences as a single string or pick the first value from an array
       setSelectedExperience(
         Array.isArray(editProduct.experiences)
           ? editProduct.experiences[0] || ""
@@ -213,13 +231,13 @@ export default function AddProductForm({
     },
     onSuccess: (data) => {
       if (data?.success) {
-        toast.success(data?.message || "Product created successfully");
+        toast(data?.message || "Product created successfully");
         queryClient.invalidateQueries({ queryKey: ["products"] });
         onSave();
       }
     },
-    onError: () => {
-      toast.error("Failed to create product");
+    onError: (error) => {
+      toast(error?.message || "Failed to create product");
     },
   });
 
@@ -243,20 +261,50 @@ export default function AddProductForm({
     },
     onSuccess: (data) => {
       if (data?.success) {
-        toast.success(data?.message || "Product updated successfully");
+        toast(data?.message || "Product updated successfully");
         queryClient.invalidateQueries({ queryKey: ["products"] });
         onSave();
       }
     },
-    onError: () => {
-      toast.error("Failed to update product");
+    onError: (error) => {
+      toast(error?.message || "Failed to update product");
     },
   });
 
   // Handle COA file selection
   const handleCoaFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
-      setCoaFiles(Array.from(event.target.files));
+      const newFiles = Array.from(event.target.files);
+      setCoaFiles((prev) => [...prev, ...newFiles]);
+      const newPreviews = newFiles.map((file) => ({
+        url: file.type.startsWith("image/") ? URL.createObjectURL(file) : "",
+        name: file.name,
+        isImage: file.type.startsWith("image/"),
+      }));
+      setCoaPreviews((prev) => [...prev, ...newPreviews]);
+    }
+  };
+
+  // Remove a COA file
+  const removeCoaFile = (index: number) => {
+    const removedPreview = coaPreviews[index];
+    setCoaFiles((prev) => prev.filter((_, i) => i !== index));
+    setCoaPreviews((prev) => {
+      const preview = prev[index];
+      if (preview.isImage && preview.url && !preview.url.startsWith("http")) {
+        URL.revokeObjectURL(preview.url);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
+    // Add Cloudinary URL to deletedCoas in edit mode
+    if (isEditing && removedPreview.url.startsWith("http")) {
+      setDeletedCoas((prev) => {
+        // Avoid duplicates
+        if (!prev.includes(removedPreview.url)) {
+          return [...prev, removedPreview.url];
+        }
+        return prev;
+      });
     }
   };
 
@@ -272,12 +320,22 @@ export default function AddProductForm({
 
   // Remove a product image
   const removeImage = (index: number) => {
+    const removedPreview = imagePreviews[index];
     setProductImages((prev) => prev.filter((_, i) => i !== index));
     setImagePreviews((prev) => {
       const url = prev[index];
-      if (!url.startsWith("http")) URL.revokeObjectURL(url); // Only revoke for local URLs
+      if (!url.startsWith("http")) URL.revokeObjectURL(url);
       return prev.filter((_, i) => i !== index);
     });
+    if (isEditing && removedPreview.startsWith("http")) {
+      setDeletedPhotos((prev) => {
+        // Avoid duplicates
+        if (!prev.includes(removedPreview)) {
+          return [...prev, removedPreview];
+        }
+        return prev;
+      });
+    }
   };
 
   const handleInputChange = (
@@ -345,7 +403,6 @@ export default function AddProductForm({
   const handleSubmit = async () => {
     const formDataToSend = new FormData();
 
-    // Append basic fields
     formDataToSend.append("name", formData.name);
     formDataToSend.append("batch", formData.batch);
     formDataToSend.append("description", formData.description);
@@ -367,7 +424,6 @@ export default function AddProductForm({
       )
     );
     formDataToSend.append("category", selectedCategoryId);
-    // Ensure experiences is sent as a flat array string
     const experiencesArray = selectedExperience ? [selectedExperience] : [];
     formDataToSend.append("experiences", JSON.stringify(experiencesArray));
     formDataToSend.append("dosage", selectedDosage);
@@ -378,9 +434,15 @@ export default function AddProductForm({
     if (expirationDate)
       formDataToSend.append("expirationDate", expirationDate.toISOString());
 
-    // Append files
     productImages.forEach((image) => formDataToSend.append("photo", image));
     coaFiles.forEach((coa) => formDataToSend.append("coas", coa));
+
+    if (isEditing && deletedPhotos.length > 0) {
+      formDataToSend.append("deletedPhotos", JSON.stringify(deletedPhotos));
+    }
+    if (isEditing && deletedCoas.length > 0) {
+      formDataToSend.append("deletedCoas", JSON.stringify(deletedCoas));
+    }
 
     try {
       if (isEditing) {
@@ -416,7 +478,7 @@ export default function AddProductForm({
             }
           >
             {createProductMutation.isPending ||
-            updateProductMutation.isPending ? (
+              updateProductMutation.isPending ? (
               <span className="flex items-center">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 {isEditing ? "Updating..." : "Saving..."}
@@ -549,8 +611,8 @@ export default function AddProductForm({
                   </SelectTrigger>
                   <SelectContent className="!w-[100px] !bg-white rounded-[4px] border border-gray-200 shadow-sm z-50">
                     <SelectItem value="ct">ct</SelectItem>
-                    <SelectItem value="g">g</SelectItem>
-                    <SelectItem value="mg">mg</SelectItem>
+                    <SelectItem value="gm">gm</SelectItem>
+                    <SelectItem value="pc">pc</SelectItem>
                   </SelectContent>
                 </Select>
                 <div className="flex items-center gap-x-2">
@@ -598,7 +660,7 @@ export default function AddProductForm({
                     {priceEntries.map((entry) => (
                       <div
                         key={entry.id}
-                        className="border border-gray-200 rounded-lg p-2 bg-gray-50"
+                        className="border  border-gray-200 rounded-[8px] p-2 bg-gray-50"
                       >
                         <div
                           onClick={() => removePriceEntry(entry.id)}
@@ -640,22 +702,44 @@ export default function AddProductForm({
                   className="hidden"
                 />
                 <Button
-                  className="bg-[#6B46C1] hover:bg-[#5A3A9F] text-white"
+                  className="bg-[#6B46C1] hover:bg-[#5A3A9F] text-white rounded-[8px]"
                   onClick={() => triggerFileInput(coaFileInputRef)}
                 >
                   Add File
                 </Button>
-                {coaFiles.length > 0 && (
-                  <div className="mt-4 text-sm text-gray-600">
-                    <p>Selected files:</p>
-                    <ul className="list-disc list-inside">
-                      {coaFiles.map((file, index) => (
-                        <li key={index}>{file.name}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </div>
+              {coaPreviews.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  {coaPreviews.map((preview, index) => (
+                    <div key={index} className="relative">
+                      {preview.isImage ? (
+                        <Image
+                          src={preview.url || "/placeholder.svg"}
+                          width={100}
+                          height={100}
+                          alt={`COA Preview ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center w-full h-32 bg-gray-100 rounded-lg">
+                          <FileIcon className="w-10 h-10 text-gray-400" />
+                          <p className="text-sm text-gray-600 truncate w-full text-center px-2">
+                            {preview.name}
+                          </p>
+                        </div>
+                      )}
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={() => removeCoaFile(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -754,7 +838,7 @@ export default function AddProductForm({
                   className="hidden"
                 />
                 <Button
-                  className="bg-[#6B46C1] hover:bg-[#5A3A9F] text-white"
+                  className="bg-[#6B46C1] hover:bg-[#5A3A9F] text-white rounded-[8px]"
                   onClick={() => triggerFileInput(imageFileInputRef)}
                 >
                   Add Image
