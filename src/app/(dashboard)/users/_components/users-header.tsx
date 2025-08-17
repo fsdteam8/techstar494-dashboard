@@ -15,9 +15,16 @@ import {
 interface UsersHeaderProps {
   search: string
   setSearch: React.Dispatch<React.SetStateAction<string>>
+  filter: string
+  setFilter: React.Dispatch<React.SetStateAction<string>>
 }
 
-const UsersHeader: React.FC<UsersHeaderProps> = ({ search, setSearch }) => {
+const UsersHeader: React.FC<UsersHeaderProps> = ({
+  search,
+  setSearch,
+  filter,
+  setFilter,
+}) => {
   return (
     <div className="w-full flex items-center justify-between">
       <div>
@@ -49,12 +56,34 @@ const UsersHeader: React.FC<UsersHeaderProps> = ({ search, setSearch }) => {
       <div>
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-[10px] py-[15px] px-[32px] rounded-[8px] border-[1.5px] border-primary text-sm font-medium text-black leading-[120%]">
-            <ListFilter size={20} className="text-primary" /> Filters
+            <ListFilter size={20} className="text-primary" />{' '}
+            {filter ? filter : 'Filters'}
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="min-w-[5rem] bg-white">
-            <DropdownMenuLabel>This Month</DropdownMenuLabel>
-            <DropdownMenuLabel>Previous Month</DropdownMenuLabel>
-            <DropdownMenuLabel>Last Year</DropdownMenuLabel>
+          <DropdownMenuContent className="min-w-[5rem] bg-white cursor-pointer">
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('this-month')}
+            >
+              This Month
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('previous-month')}
+            >
+              Previous Month
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('last-year')}
+            >
+              Last Year
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('')}
+            >
+              Clear Filter
+            </DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

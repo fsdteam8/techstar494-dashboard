@@ -172,7 +172,9 @@ const LoginForm = () => {
             <div className="pt-4">
               <Button
                 disabled={isLoading}
-                className="text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] bg-primary"
+                className={`text-base font-medium text-white cursor-pointer leading-[120%] rounded-[8px] py-4 w-full h-[51px] ${
+                  isLoading ? "opacity-50 cursor-not-allowed" : "bg-primary"
+                }`}
                 type="submit"
               >
                 {isLoading ? "Sign In ..." : "Sign In"}

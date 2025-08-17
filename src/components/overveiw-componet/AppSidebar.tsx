@@ -4,12 +4,12 @@ import type React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard ,
-  Boxes ,
-  ShoppingCart ,
+  LayoutDashboard,
+  Boxes,
+  ShoppingCart,
   Settings,
   Users,
-Square ,
+  Square,
   LogOut,
   ChevronDown,
 } from "lucide-react";
@@ -43,38 +43,37 @@ import { signOut } from "next-auth/react";
 import LogoutModal from "../modal/LogoutModal";
 
 const navigationItems = [
-  { title: "Overview", icon: LayoutDashboard , href: "/", isActive: true },
-  { title: "Products", icon: Boxes , href: "/products" },
-  { title: "Orders", icon: ShoppingCart , href: "/orders" },
+  { title: "Overview", icon: LayoutDashboard, href: "/", isActive: true },
+  { title: "Products", icon: Boxes, href: "/products" },
+  { title: "Orders", icon: ShoppingCart, href: "/orders" },
   { title: "Users", icon: Users, href: "/users" },
   { title: "Subscribers", icon: Users, href: "/subscribers" },
-
 ];
 
 const settingsItems = [
-  { title: "FAQ",  href: "/documents/faq" },
+  { title: "FAQ", href: "/documents/faq" },
   {
     title: "Privacy Policy",
-    
+
     href: "/documents/privacy-policy",
   },
   {
     title: "Terms & Conditions",
-   
+
     href: "/documents/terms-and-condition",
   },
-  { title: "Legality",  href: "/documents/legality" },
-  { title: "Refund Policy",  href: "/documents/refund-policy" },
-  { title: "COAs",  href: "/coas" },
-  { title: "FDA Disclaimer",  href: "/documents/fda-disclaimer" },
+  { title: "Legality", href: "/documents/legality" },
+  { title: "Refund Policy", href: "/documents/refund-policy" },
+  { title: "COAs", href: "/coas" },
+  { title: "FDA Disclaimer", href: "/documents/fda-disclaimer" },
   { title: "Grand Purp Labs", href: "/documents/grand-purp-labs" },
-  { title: "Set Promotion",  href: "/documents/set-pormotion" },
-  { title: "Add Blog",  href: "/documents/all-blogs" },
+  { title: "Set Promotion", href: "/documents/set-promotion" },
+  { title: "Add Blog", href: "/documents/all-blogs" },
 ];
 
 const navigationItems1 = [
-  { title: "Coupon", icon: Square , href: "/coupon" },
-  { title: "Settings", icon: Settings , href: "/settings" },
+  { title: "Coupon", icon: Square, href: "/coupon" },
+  { title: "Settings", icon: Settings, href: "/settings" },
 ];
 
 export default function ClientLayout({
@@ -99,7 +98,9 @@ export default function ClientLayout({
     if (!name) return "U";
     return name.charAt(0).toUpperCase();
   };
-   const isDocumentsActive = settingsItems.some((item) => pathname === item.href);
+  const isDocumentsActive = settingsItems.some(
+    (item) => pathname === item.href
+  );
 
   return (
     <SidebarProvider className="px-0">
@@ -120,8 +121,7 @@ export default function ClientLayout({
           </SidebarHeader>
 
           <SidebarContent className="">
-
-            <SidebarGroup>
+            <SidebarGroup className=" py-0">
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => (
@@ -147,25 +147,27 @@ export default function ClientLayout({
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <SidebarGroup>
+            <SidebarGroup className=" py-0">
               <SidebarGroupContent>
                 <SidebarMenu>
-                <Collapsible className="group/collapsible">
+                  <Collapsible className="group/collapsible">
                     <SidebarMenuItem>
                       <CollapsibleTrigger asChild>
-                       <SidebarMenuButton 
+                        <SidebarMenuButton
                           isActive={isDocumentsActive}
                           className="text-white hover:bg-white hover:text-[#6B46C1] data-[active=true]:bg-white data-[active=true]:text-[#6B46C1] h-[48px] !w-full"
                         >
                           <Settings className="h-4 w-4" />
-                          <span className="text-[16px] font-medium">Documents</span>
+                          <span className="text-[16px] font-medium">
+                            Documents
+                          </span>
                           <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                         </SidebarMenuButton>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
                         <SidebarMenuSub className="">
                           {settingsItems.map((item) => (
-                             <SidebarMenuSubItem key={item.title}>
+                            <SidebarMenuSubItem key={item.title}>
                               <SidebarMenuSubButton
                                 asChild
                                 isActive={pathname === item.href}
@@ -175,8 +177,9 @@ export default function ClientLayout({
                                   href={item.href}
                                   className="flex items-center gap-3"
                                 >
-                               
-                                  <span className="text-base font-medium">{item.title}</span>
+                                  <span className="text-base font-medium">
+                                    {item.title}
+                                  </span>
                                 </Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
@@ -189,7 +192,7 @@ export default function ClientLayout({
               </SidebarGroupContent>
             </SidebarGroup>
 
-             <SidebarGroup>
+            <SidebarGroup className=" py-0">
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems1.map((item) => (
@@ -258,4 +261,3 @@ export default function ClientLayout({
     </SidebarProvider>
   );
 }
-

@@ -32,7 +32,7 @@ const DeleteModal = ({ isOpen, onClose, onConfirm }: DeleteModalProps) => {
             Delete
           </button>
           <button
-            className="text-base font-medium bg-gray-200 text-black leading-[120%] py-2 px-5 rounded-lg"
+            className="text-base font-medium bg-gray-200 text-black leading-[120%] py-2 px-5 rounded-[10px]"
             onClick={onClose}
           >
             Cancel

@@ -13,9 +13,16 @@ import {
 interface OrderHeaderProps {
   search: string
   setSearch: React.Dispatch<React.SetStateAction<string>>
+  filter: string
+  setFilter: React.Dispatch<React.SetStateAction<string>>
 }
 
-const OrderHeader: React.FC<OrderHeaderProps> = ({ search, setSearch }) => {
+const OrderHeader: React.FC<OrderHeaderProps> = ({
+  search,
+  setSearch,
+  filter,
+  setFilter,
+}) => {
   return (
     <div className="w-full flex items-center justify-between">
       {/* Title */}
@@ -52,13 +59,40 @@ const OrderHeader: React.FC<OrderHeaderProps> = ({ search, setSearch }) => {
       <div>
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-[10px] py-[15px] px-[32px] rounded-[8px] border-[1.5px] border-primary text-sm font-medium text-black leading-[120%]">
-            <ListFilter size={20} className="text-primary" /> Filters
+            <ListFilter size={20} className="text-primary" />{' '}
+            {filter ? filter : 'Filters'}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="min-w-[5rem] bg-white">
-            <DropdownMenuLabel>Pending</DropdownMenuLabel>
-            <DropdownMenuLabel>Ongoing</DropdownMenuLabel>
-            <DropdownMenuLabel>Delivered</DropdownMenuLabel>
-            <DropdownMenuLabel>Cancelled</DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100 cursor-pointer"
+              onClick={() => setFilter('pending')}
+            >
+              Pending
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100 cursor-pointer"
+              onClick={() => setFilter('ongoging')}
+            >
+              Ongoing
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100 cursor-pointer"
+              onClick={() => setFilter('delivered')}
+            >
+              Delivered
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100 cursor-pointer"
+              onClick={() => setFilter('cancelled')}
+            >
+              Cancelled
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100 cursor-pointer"
+              onClick={() => setFilter('')}
+            >
+              Clear Filter
+            </DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

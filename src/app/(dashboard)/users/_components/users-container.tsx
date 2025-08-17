@@ -5,17 +5,20 @@ import { UsersApiResponse } from '../../../../../types/user.types'
 import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import TechstarPagination from '@/components/ui/TechstarPagination'
-import { Loader2 } from 'lucide-react'
+// import { Loader2 } from 'lucide-react'
 import { useDebounce } from '@/hooks/useDebounce'
+import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLoader'
 
 interface UsersContainerProps {
   search: string
+  filter: string
 }
 
 // API function with search parameter
 const fetchUsers = async (
   page: number,
-  search: string
+  search: string,
+  filter: string
 ): Promise<UsersApiResponse> => {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -24,6 +27,10 @@ const fetchUsers = async (
 
   if (search.trim()) {
     params.append('search', search.trim())
+  }
+
+  if (filter) {
+    params.append('filter', filter)
   }
 
   const res = await fetch(
@@ -37,23 +44,32 @@ const fetchUsers = async (
   return res.json()
 }
 
-const UsersContainer: React.FC<UsersContainerProps> = ({ search }) => {
+const UsersContainer: React.FC<UsersContainerProps> = ({ search, filter }) => {
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   const debouncedSeach = useDebounce(search, 500)
 
   const { data, isLoading, isError, error } = useQuery<UsersApiResponse>({
-    queryKey: ['users', currentPage, debouncedSeach],
-    queryFn: () => fetchUsers(currentPage, debouncedSeach),
+    queryKey: ['users', currentPage, debouncedSeach, filter],
+    queryFn: () => fetchUsers(currentPage, debouncedSeach, filter),
     // keepPreviousData: true,
   })
 
+  const rowsNumber = data?.data.length
+
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full mt-12">
-        <Loader2 className="animate-spin text-primary mx-auto" />
-        <p className="text-center py-4">Loading users...</p>
-      </div>
+      <ReusableLoader
+        rows={rowsNumber}
+        headings={[
+          'Customer Name',
+          'Joined Date',
+          'Last Purchased Date',
+          'Total Spend',
+          'Points',
+          'Status',
+        ]}
+      />
     )
   }
 
