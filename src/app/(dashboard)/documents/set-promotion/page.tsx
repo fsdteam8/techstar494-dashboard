@@ -1,6 +1,6 @@
 import React from "react";
-import SetPormotionHeader from "./_components/set-pormotion-header";
-import SetPromotionContainer from "./_components/set-pormotion-container";
+import SetPormotionHeader from "./_components/set-promotion-header";
+import SetPromotionContainer from "./_components/set-promotion-container";
 
 const SetPormotionPage = () => {
   return (
