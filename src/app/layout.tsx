@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className={`${roboto.className} antialiased`}>
         <AuthProvider>
           <AppProvider>
-            {children} <ToastContainer position="top-right" />
+            {children} <ToastContainer autoClose={2000} position="top-right" />
           </AppProvider>
         </AuthProvider>
       </body>

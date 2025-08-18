@@ -1,20 +1,59 @@
-
 "use client"
 
-import { useState } from "react"
-import { Search, SquarePen, Trash,  } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Search, SquarePen, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from "react-toastify"
 
+// Type definitions
+type CoaItem = {
+  productId: string
+  productName: string
+  batch: string
+  description: string
+  index: number
+  url: string
+}
+
+type CoaCategory = {
+  _id: string
+  categoryName: string
+  coas: CoaItem[]
+}
+
+type CoaApiResponse = {
+  success: boolean
+  data: CoaCategory[]
+}
+
+type SelectedItem = {
+  categoryId: string
+  itemId: number
+} | null
+
+type SelectedCoa = {
+  productId: string
+  coaIndex: number
+} | null
+
+type UploadCOAModalProps = {
+  open: boolean 
+  onOpenChange: (open: boolean) => void
+  onUpload: (file: File) => Promise<void>
+  isPending?: boolean
+}
+
+// Upload Modal Component
 function UploadCOAModal({ 
   open, 
-  onOpenChange 
-}: { 
-  open: boolean 
-  onOpenChange: (open: boolean) => void 
-}) {
+  onOpenChange,
+  onUpload,
+  isPending = false
+}: UploadCOAModalProps) {
   const [file, setFile] = useState<File | null>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,16 +73,21 @@ function UploadCOAModal({
     e.preventDefault()
   }
 
-  const handleUpload = () => {
-    // Implement your upload logic here
-    console.log("Uploading file:", file)
-    onOpenChange(false)
-    setFile(null)
+  const handleUpload = async () => {
+    if (file) {
+      try {
+        await onUpload(file)
+        onOpenChange(false)
+        setFile(null)
+      } catch (error) {
+        console.error('Upload failed:', error)
+      }
+    }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] !rounded-[8px] bg-white ">
+      <DialogContent className="sm:max-w-[425px] !rounded-[8px] bg-white">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-[#1A1C21]">COAs</DialogTitle>
           <p className="text-base text-[#1A1C21]">Upload COAs</p>
@@ -78,9 +122,9 @@ function UploadCOAModal({
           <Button 
             className="w-full bg-[#6B46C1] hover:bg-[#6B46C1]/85 text-white h-[51px] text-base rounded-[8px]"
             onClick={handleUpload}
-            disabled={!file}
+            disabled={!file || isPending}
           >
-            Add File
+            {isPending ? 'Uploading...' : 'Add File'}
           </Button>
         </div>
       </DialogContent>
@@ -88,55 +132,138 @@ function UploadCOAModal({
   )
 }
 
+// Delete Confirmation Modal Component
+function DeleteConfirmationModal({
+  open,
+  onOpenChange,
+  onConfirm
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onConfirm: () => void
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px] !rounded-[8px] bg-white">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-[#1A1C21]">Confirm Deletion</DialogTitle>
+          <p className="text-base text-[#1A1C21]">Are you sure you want to delete this COA?</p>
+        </DialogHeader>
+        <div className="flex justify-end gap-4">
+          <Button 
+            variant="outline"
+            className="border-[#6B46C1] text-[#6B46C1]"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button 
+            className="bg-red-600 hover:bg-red-700 text-white"
+            onClick={onConfirm}
+          >
+            Delete
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// API Functions
+async function fetchCoas(): Promise<CoaCategory[]> {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/coas`)
+  const json: CoaApiResponse = await response.json()
+  if (!json.success) {
+    throw new Error('Failed to fetch COAs')
+  }
+  return json.data
+}
+
+// Main Component
 export default function COAsPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [uploadModalOpen, setUploadModalOpen] = useState(false)
-  const [currentItem, setCurrentItem] = useState<{categoryId: string, itemId: number} | null>(null)
-  console.log(currentItem)
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [uploadModalOpen, setUploadModalOpen] = useState<boolean>(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
+  const [currentItem, setCurrentItem] = useState<SelectedItem>(null)
+  const [selectedCoa, setSelectedCoa] = useState<SelectedCoa>(null)
+
+  const queryClient = useQueryClient()
+
+  const { data: categories, isLoading } = useQuery<CoaCategory[]>({
+    queryKey: ['coas'],
+    queryFn: fetchCoas,
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: async ({ productId, coaIndex }: { productId: string; coaIndex: number }) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/coas/${productId}/${coaIndex}`, {
+        method: 'DELETE',
+      })
+      if (!response.ok) {
+        throw new Error('Failed to delete COA')
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['coas'] })
+      toast.success('COA deleted successfully')
+    },
+    onError: () => {
+      toast.error('Failed to delete COA')
+    }
+  })
+
+  const reuploadMutation = useMutation({
+    mutationFn: async ({ productId, coaIndex, file }: { productId: string; coaIndex: number; file: File }) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/coas/${productId}/${coaIndex}/reupload`, {
+        method: 'PUT',
+        body: formData,
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to re-upload COA')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['coas'] })
+      toast.success('COA re-uploaded successfully')
+    },
+    onError: () => {
+      toast.error('Failed to re-upload COA')
+    }
+  })
 
   const handleReUploadClick = (categoryId: string, itemId: number) => {
-    setCurrentItem({categoryId, itemId})
+    setCurrentItem({ categoryId, itemId })
     setUploadModalOpen(true)
   }
 
-  const categories = [
-    {
-      id: "flower",
-      name: "Flower",
-      items: [
-        { id: 1, name: "COAs 1" },
-        { id: 2, name: "COAs 2" },
-        { id: 3, name: "COAs 3" },
-        { id: 4, name: "COAs 4" },
-        { id: 5, name: "COAs 5" },
-        { id: 6, name: "COAs 6" },
-      ],
-    },
-    {
-      id: "gummies",
-      name: "Gummies",
-      items: [
-        { id: 1, name: "COAs 1" },
-        { id: 2, name: "COAs 2" },
-        { id: 3, name: "COAs 3" },
-        { id: 4, name: "COAs 4" },
-        { id: 5, name: "COAs 5" },
-        { id: 6, name: "COAs 6" },
-      ],
-    },
-    {
-      id: "edibles",
-      name: "Edibles",
-      items: [
-        { id: 1, name: "COAs 1" },
-        { id: 2, name: "COAs 2" },
-        { id: 3, name: "COAs 3" },
-        { id: 4, name: "COAs 4" },
-        { id: 5, name: "COAs 5" },
-        { id: 6, name: "COAs 6" },
-      ],
-    },
-  ]
+  const handleDeleteClick = (productId: string, coaIndex: number) => {
+    setSelectedCoa({ productId, coaIndex })
+    setDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (selectedCoa) {
+      deleteMutation.mutate(selectedCoa)
+    }
+    setDeleteModalOpen(false)
+    setSelectedCoa(null)
+  }
+
+  useEffect(() => {
+    if (!uploadModalOpen) {
+      setCurrentItem(null)
+    }
+  }, [uploadModalOpen])
+
+  const filteredCategories = categories?.map(cat => ({
+    ...cat,
+    coas: cat.coas.filter(coa => coa.productName.toLowerCase().includes(searchQuery.toLowerCase()))
+  })).filter(cat => cat.coas.length > 0) || []
 
   return (
     <div className="min-h-screen">
@@ -144,7 +271,24 @@ export default function COAsPage() {
         {/* Upload Modal */}
         <UploadCOAModal 
           open={uploadModalOpen} 
-          onOpenChange={setUploadModalOpen} 
+          onOpenChange={setUploadModalOpen}
+          onUpload={async (file) => {
+            if (currentItem) {
+              await reuploadMutation.mutateAsync({
+                productId: currentItem.categoryId, 
+                coaIndex: currentItem.itemId,
+                file
+              })
+            }
+          }}
+          isPending={reuploadMutation.isPending}
+        />
+
+        {/* Delete Modal */}
+        <DeleteConfirmationModal 
+          open={deleteModalOpen} 
+          onOpenChange={setDeleteModalOpen}
+          onConfirm={handleConfirmDelete}
         />
 
         {/* Header */}
@@ -199,45 +343,74 @@ export default function COAsPage() {
         <div className="p-6">
           <h2 className="text-xl font-bold text-[#1F2937] mb-4">COAs All Categories</h2>
 
-          <Accordion type="single" collapsible defaultValue="flower" className="space-y-2">
-            {categories.map((category) => (
-              <AccordionItem key={category.id} value={category.id} className="border border-gray-200 rounded-[8px]">
-                <AccordionTrigger className="px-4 py-3 bg-[#6B46C1] text-white rounded-[8px] [&[data-state=closed]]:rounded-lg [&>svg]:text-white">
-                  <span className="font-medium">{category.name}</span>
-                </AccordionTrigger>
-                <AccordionContent className="px-0 py-0">
+          {isLoading ? (
+            <div className="space-y-2">
+              {[...Array(3)].map((_, catIndex) => (
+                <div key={catIndex} className="border border-gray-200 rounded-[8px]">
+                  <div className="px-4 py-3 bg-[#6B46C1] text-white rounded-[8px]">
+                    <div className="bg-gray-300 animate-pulse h-5 w-32 rounded"></div>
+                  </div>
                   <div className="bg-white">
-                    {category.items.map((item, index) => (
+                    {[...Array(3)].map((_, itemIndex) => (
                       <div
-                        key={item.id}
+                        key={itemIndex}
                         className={`flex items-center justify-between px-4 py-3 bg-white ${
-                          index !== category.items.length - 1 ? "border-b border-gray-200" : ""
-                        } ${index === category.items.length - 1 ? "rounded-b-lg" : ""}`}
+                          itemIndex !== 2 ? "border-b border-gray-200" : ""
+                        } ${itemIndex === 2 ? "rounded-b-lg" : ""}`}
                       >
-                        <span className="text-sm text-gray-700 font-medium">{item.name}</span>
+                        <div className="bg-gray-200 animate-pulse h-4 w-48 rounded"></div>
                         <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            className="bg-[#6B46C1] text-white px-3 h-[24px] rounded-[8px] text-xs font-medium"
-                            onClick={() => handleReUploadClick(category.id, item.id)}
-                          >
-                            Re Upload
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="p-1 h-7 w-7 bg-[#6B46C1] rounded-[4px]"
-                          >
-                            <Trash className="h-4 w-4 text-white" />
-                          </Button>
+                          <div className="bg-gray-300 animate-pulse h-6 w-20 rounded"></div>
+                          <div className="bg-gray-300 animate-pulse h-6 w-7 rounded"></div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Accordion type="single" collapsible defaultValue={filteredCategories[0]?._id} className="space-y-2">
+              {filteredCategories.map((category) => (
+                <AccordionItem key={category._id} value={category._id} className="border border-gray-200 rounded-[8px]">
+                  <AccordionTrigger className="px-4 py-3 bg-[#6B46C1] text-white rounded-[8px] [&[data-state=closed]]:rounded-lg [&>svg]:text-white">
+                    <span className="text-[18px] font-bold text-white">{category.categoryName}</span>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-0 py-0">
+                    <div className="bg-white">
+                      {category.coas.map((coa, index) => (
+                        <div
+                          key={`${coa.productId}-${coa.index}`}
+                          className={`flex items-center justify-between px-4 py-3 bg-white ${
+                            index !== category.coas.length - 1 ? "border-b border-gray-200" : ""
+                          } ${index === category.coas.length - 1 ? "rounded-b-lg" : ""}`}
+                        >
+                          <span className="text-base text-[#323232] font-normal">{coa.productName}</span>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              className="bg-[#6B46C1] text-white px-3 h-[24px] rounded-[8px] text-xs font-medium"
+                              onClick={() => handleReUploadClick(coa.productId, coa.index)}
+                            >
+                              Re Upload
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="p-1 h-7 w-7 bg-[#6B46C1] rounded-[4px]"
+                              onClick={() => handleDeleteClick(coa.productId, coa.index)}
+                            >
+                              <Trash className="h-4 w-4 text-white" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          )}
         </div>
       </div>
     </div>
