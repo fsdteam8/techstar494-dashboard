@@ -16,6 +16,8 @@ import {
 import { useSession } from 'next-auth/react'
 import { SubscribersApiResponse } from '../../../../../types/subscribers.types'
 import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLoader'
+import ErrorContainer from '@/components/shared/shared/ErrorContainer/ErrorContainer'
+import NotFound from '@/components/shared/shared/NotFound/NotFound'
 
 interface SubscriberContainerProps {
   search: string
@@ -63,7 +65,7 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
     enabled: !!token, // only run if token exists
   })
 
-  console.log(data?.pagination)
+  // console.log(data?.pagination)
 
   const rowsNumber = data?.data.length
 
@@ -78,9 +80,17 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
 
   if (isError) {
     return (
-      <p className="text-center text-red-500 py-10">
-        {(error as Error).message}
-      </p>
+      <div className="my-10 rounded-lg">
+        <ErrorContainer message={error?.message || 'Something went wrong'} />
+      </div>
+    )
+  }
+
+  if (data?.data?.length === 0) {
+    return (
+      <div className="my-10 rounded-lg">
+        <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
+      </div>
     )
   }
 

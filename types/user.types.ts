@@ -25,10 +25,10 @@ export type UsersApiResponse = {
   success: boolean
   message: string
   data: User[]
-  pagination?: {
+  meta?: {
     totalPages: number
-    totalData: number
-    currentPage: number
+    total: number
+    page: number
     limit: number
   }
 }
