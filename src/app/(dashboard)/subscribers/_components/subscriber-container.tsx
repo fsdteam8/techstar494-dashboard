@@ -48,7 +48,7 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
       }
 
       if (filter) {
-        params.append('filter', filter)
+        params.append('dateFilter', filter)
       }
 
       return fetch(
@@ -106,24 +106,25 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
           <DropdownMenuContent className="min-w-[5rem] bg-[#F0EDF9]">
             <DropdownMenuLabel
               className="cursor-pointer hover:bg-gray-100"
-              onClick={() => setFilter('this-month')}
+              onClick={() => setFilter('thisMonth')}
             >
               This Month
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-[#B3B3B3]" />
+
             <DropdownMenuLabel
               className="cursor-pointer hover:bg-gray-100"
-              onClick={() => setFilter('previous-month')}
-            >
-              Previous Month
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#B3B3B3]" />
-            <DropdownMenuLabel
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => setFilter('last-month')}
+              onClick={() => setFilter('lastMonth')}
             >
               Last Month
             </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="cursor-pointer hover:bg-gray-100"
+              onClick={() => setFilter('lastYear')}
+            >
+              Last Year
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-[#B3B3B3]" />
             <DropdownMenuLabel
               className="cursor-pointer hover:bg-gray-100"
               onClick={() => setFilter('')}
