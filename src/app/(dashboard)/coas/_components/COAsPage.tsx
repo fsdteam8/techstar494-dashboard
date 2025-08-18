@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, SquarePen, Trash } from "lucide-react"
+import {Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -181,7 +181,7 @@ async function fetchCoas(): Promise<CoaCategory[]> {
 
 // Main Component
 export default function COAsPage() {
-  const [searchQuery, setSearchQuery] = useState<string>("")
+
   const [uploadModalOpen, setUploadModalOpen] = useState<boolean>(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
   const [currentItem, setCurrentItem] = useState<SelectedItem>(null)
@@ -262,7 +262,7 @@ export default function COAsPage() {
 
   const filteredCategories = categories?.map(cat => ({
     ...cat,
-    coas: cat.coas.filter(coa => coa.productName.toLowerCase().includes(searchQuery.toLowerCase()))
+    // coas: cat.coas.filter(coa => coa.productName.toLowerCase().includes(searchQuery.toLowerCase()))
   })).filter(cat => cat.coas.length > 0) || []
 
   return (
@@ -299,16 +299,7 @@ export default function COAsPage() {
               <p className="text-sm text-[#4B5563] font-normal">Set your COAs list</p>
             </div>
             {/* Search Bar */}
-            <div className="w-[85%] relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search by name"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white border-[#6B46C1] rounded-[8px] h-[48px]"
-              />
-            </div>
+            
           </div>
         </div>
 
@@ -316,9 +307,7 @@ export default function COAsPage() {
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-[#1F2937]">COAs Title & Subtitle</h2>
-            <Button size="sm" className="bg-[#6B46C1] hover:bg-[#6B46C1]/85 text-white px-3 py-1 text-xs">
-              <SquarePen />
-            </Button>
+           
           </div>
 
           <div className="space-y-3 mt-8">
@@ -334,9 +323,6 @@ export default function COAsPage() {
             </p>
           </div>
 
-          <Button className="bg-[#6B46C1] hover:bg-[#6B46C1]/85 text-white px-[32px] h-[51px] text-base rounded-[8px] mt-[48px]">
-            Save Changes
-          </Button>
         </div>
 
         {/* COAs All Categories */}
