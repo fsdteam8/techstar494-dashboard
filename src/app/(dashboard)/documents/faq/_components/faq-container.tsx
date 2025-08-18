@@ -1,88 +1,88 @@
-"use client";
-import DeleteModal from "@/components/modal/DeleteModal";
-import ErrorContainer from "@/components/shared/shared/ErrorContainer/ErrorContainer";
-import NotFound from "@/components/shared/shared/NotFound/NotFound";
-import TableSkeletonWrapper from "@/components/shared/shared/TableSkeletonWrapper/TableSkeletonWrapper";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { SquarePen, Trash2 } from "lucide-react";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import React, { useState } from "react";
-import { toast } from "react-toastify";
+'use client'
+import DeleteModal from '@/components/modal/DeleteModal'
+import ErrorContainer from '@/components/shared/shared/ErrorContainer/ErrorContainer'
+import NotFound from '@/components/shared/shared/NotFound/NotFound'
+import TableSkeletonWrapper from '@/components/shared/shared/TableSkeletonWrapper/TableSkeletonWrapper'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { SquarePen, Trash2 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import React, { useState } from 'react'
+import { toast } from 'react-toastify'
 
 export type FAQDataType = {
-  _id: string;
-  question: string;
-  answer: string;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-};
+  _id: string
+  question: string
+  answer: string
+  createdAt: string // ISO date string
+  updatedAt: string // ISO date string
+}
 
 export type FAQDataResponse = {
-  success: boolean;
-  message: string;
-  count: number;
-  data: FAQDataType[];
-};
+  success: boolean
+  message: string
+  count: number
+  data: FAQDataType[]
+}
 
 const FaqContainer = () => {
-  const session = useSession();
-  const token = (session?.data?.user as { accessToken: string })?.accessToken;
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null);
-  const queryClient = useQueryClient();
+  const session = useSession()
+  const token = (session?.data?.user as { accessToken: string })?.accessToken
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const [selectedBlogId, setSelectedBlogId] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
   const { data, isLoading, isError, error } = useQuery<FAQDataResponse>({
-    queryKey: ["all-faq"],
+    queryKey: ['all-faq'],
     queryFn: () =>
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/faq`).then((res) =>
         res.json()
       ),
-  });
+  })
 
   // delete api logic
   const { mutate: deleteFaq } = useMutation({
-    mutationKey: ["delete-faq"],
+    mutationKey: ['delete-faq'],
     mutationFn: (id: string) =>
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/faq/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }).then((res) => res.json()),
     onSuccess: (data) => {
       if (!data?.success) {
-        toast.error(data?.message || "Failed to delete faq");
-        return;
+        toast.error(data?.message || 'Failed to delete faq')
+        return
       } else {
-        toast.success(data?.message || "faq deleted successfully");
+        toast.success(data?.message || 'faq deleted successfully')
       }
-      queryClient.invalidateQueries({ queryKey: ["all-faq"] });
+      queryClient.invalidateQueries({ queryKey: ['all-faq'] })
     },
-  });
+  })
 
   // delete modal logic
   const handleDelete = () => {
     if (selectedBlogId) {
-      deleteFaq(selectedBlogId);
+      deleteFaq(selectedBlogId)
     }
-    setDeleteModalOpen(false);
-  };
-  
+    setDeleteModalOpen(false)
+  }
+
   if (isLoading) {
     return (
       <div className="my-10 rounded-lg">
         <TableSkeletonWrapper count={6} />
       </div>
-    );
+    )
   }
 
   if (isError) {
     return (
       <div className="my-10 rounded-lg">
-        <ErrorContainer message={error?.message || "Something went wrong"} />
+        <ErrorContainer message={error?.message || 'Something went wrong'} />
       </div>
-    );
+    )
   }
 
   if (data?.data?.length === 0) {
@@ -90,7 +90,7 @@ const FaqContainer = () => {
       <div className="my-10 rounded-lg">
         <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
       </div>
-    );
+    )
   }
   return (
     <div>
@@ -105,18 +105,18 @@ const FaqContainer = () => {
                 <div className="flex items-center gap-2">
                   <Link href={`/documents/faq/edit-faq/${faq._id}`}>
                     <button className=" bg-[#6B46C1] p-3 rounded-[2px]">
-                      {" "}
+                      {' '}
                       <SquarePen className="w-4 h-4 text-white" />
                     </button>
                   </Link>
                   <button
                     onClick={() => {
-                      setDeleteModalOpen(true);
-                      setSelectedBlogId(faq?._id);
+                      setDeleteModalOpen(true)
+                      setSelectedBlogId(faq?._id)
                     }}
                     className=" bg-[#6B46C1] p-3 rounded-[2px]"
                   >
-                    {" "}
+                    {' '}
                     <Trash2 className="w-4 h-4 text-white" />
                   </button>
                 </div>
@@ -125,7 +125,7 @@ const FaqContainer = () => {
                 {faq.answer}
               </p>
             </div>
-          );
+          )
         })}
       </div>
       {/* delete modal  */}
@@ -137,7 +137,7 @@ const FaqContainer = () => {
         />
       )}
     </div>
-  );
-};
+  )
+}
 
-export default FaqContainer;
+export default FaqContainer

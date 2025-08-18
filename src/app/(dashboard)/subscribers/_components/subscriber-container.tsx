@@ -38,7 +38,7 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
     queryFn: () => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '8',
+        limit: '10',
       })
 
       if (debouncedSearch.trim()) {
@@ -50,7 +50,7 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
       }
 
       return fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/subscriber/all?${params}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/subscriber/all?page=${currentPage}&limt=10&${params}`,
         {
           method: 'GET',
           headers: {
@@ -62,6 +62,8 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
     },
     enabled: !!token, // only run if token exists
   })
+
+  console.log(data?.pagination)
 
   const rowsNumber = data?.data.length
 
@@ -185,17 +187,19 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
         </table>
 
         {/* Pagination */}
-        {data?.pagination && data.pagination.totalPages > 1 && (
-          <div className="bg-white flex items-center justify-between py-[10px] px-[50px]">
+        {data?.pagination && data.pagination.totalPages > 0 && (
+          <div className="w-full bg-white flex items-center justify-between py-[10px] px-[50px] ">
             <p className="text-sm text-[#707070]">
               Showing page {currentPage} of {data.pagination.totalPages} — Total{' '}
               {data.pagination.totalSubscribers} subscribers
             </p>
-            <TechstarPagination
-              totalPages={data.pagination.totalPages}
-              currentPage={currentPage}
-              onPageChange={(page) => setCurrentPage(page)}
-            />
+            <div>
+              <TechstarPagination
+                totalPages={data.pagination.totalPages}
+                currentPage={currentPage}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
           </div>
         )}
       </div>
