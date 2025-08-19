@@ -62,19 +62,25 @@ const UsersHeader: React.FC<UsersHeaderProps> = ({
           <DropdownMenuContent className="min-w-[5rem] bg-white cursor-pointer">
             <DropdownMenuLabel
               className="hover:bg-gray-100"
-              onClick={() => setFilter('this-month')}
+              onClick={() => setFilter('this_month')}
             >
               This Month
             </DropdownMenuLabel>
             <DropdownMenuLabel
               className="hover:bg-gray-100"
-              onClick={() => setFilter('previous-month')}
+              onClick={() => setFilter('previous_month')}
             >
               Previous Month
             </DropdownMenuLabel>
             <DropdownMenuLabel
               className="hover:bg-gray-100"
-              onClick={() => setFilter('last-year')}
+              onClick={() => setFilter('this_year')}
+            >
+              This Year
+            </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="hover:bg-gray-100"
+              onClick={() => setFilter('last_year')}
             >
               Last Year
             </DropdownMenuLabel>

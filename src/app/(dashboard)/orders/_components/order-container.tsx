@@ -7,6 +7,8 @@ import TechstarPagination from '@/components/ui/TechstarPagination'
 import { useDebounce } from '@/hooks/useDebounce'
 import { OrdersApiResponse } from '../../../../../types/orders.types'
 import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLoader'
+import ErrorContainer from '@/components/shared/shared/ErrorContainer/ErrorContainer'
+import NotFound from '@/components/shared/shared/NotFound/NotFound'
 
 // -------- API Fetch Function --------
 const fetchOrders = async (
@@ -24,7 +26,7 @@ const fetchOrders = async (
   }
 
   if (filter) {
-    params.append('filter', filter)
+    params.append('status', filter)
   }
 
   const res = await fetch(
@@ -58,6 +60,9 @@ const OrdersContainer: React.FC<OrdersContainerProps> = ({
 
   const rowsNumber = data?.data.length
 
+  // ----------------
+  console.log(data)
+
   if (isLoading) {
     return (
       <ReusableLoader
@@ -69,9 +74,17 @@ const OrdersContainer: React.FC<OrdersContainerProps> = ({
 
   if (isError) {
     return (
-      <p className="text-center text-red-500 py-10">
-        {(error as Error).message}
-      </p>
+      <div className="my-10 rounded-lg">
+        <ErrorContainer message={error?.message || 'Something went wrong'} />
+      </div>
+    )
+  }
+
+  if (data?.data?.length === 0) {
+    return (
+      <div className="my-10 rounded-lg">
+        <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
+      </div>
     )
   }
 
@@ -161,17 +174,21 @@ const OrdersContainer: React.FC<OrdersContainerProps> = ({
       </table>
 
       {/* Pagination */}
-      {data?.pagination && data.pagination.totalPages > 1 && (
+      {data?.meta && data.meta.totalPages > 1 && (
         <div className="bg-white flex items-center justify-between py-[10px] px-[50px]">
-          <p className="text-sm text-[#707070]">
-            Showing page {currentPage} of {data.pagination.totalPages} — Total{' '}
-            {data.pagination.totalData} orders
-          </p>
-          <TechstarPagination
-            totalPages={data.pagination.totalPages}
-            currentPage={currentPage}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+          <div>
+            <p className="text-sm text-[#707070]">
+              Showing page {currentPage} of {data.meta.totalPages} — Total{' '}
+              {data.meta.total} orders
+            </p>
+          </div>
+          <div>
+            <TechstarPagination
+              totalPages={data.meta.totalPages}
+              currentPage={currentPage}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
         </div>
       )}
     </div>

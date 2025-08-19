@@ -58,32 +58,32 @@ const OrderHeader: React.FC<OrderHeaderProps> = ({
       {/* Filters */}
       <div>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-[10px] py-[15px] px-[32px] rounded-[8px] border-[1.5px] border-primary text-sm font-medium text-black leading-[120%]">
+          <DropdownMenuTrigger className="flex items-center gap-[10px] py-[15px] px-[32px] rounded-[8px] border-[1.5px] border-primary text-sm font-medium outline-none text-black leading-[120%]">
             <ListFilter size={20} className="text-primary" />{' '}
             {filter ? filter : 'Filters'}
           </DropdownMenuTrigger>
           <DropdownMenuContent className="min-w-[5rem] bg-white">
             <DropdownMenuLabel
               className="hover:bg-gray-100 cursor-pointer"
-              onClick={() => setFilter('pending')}
+              onClick={() => setFilter('Pending')}
             >
               Pending
             </DropdownMenuLabel>
             <DropdownMenuLabel
               className="hover:bg-gray-100 cursor-pointer"
-              onClick={() => setFilter('ongoging')}
+              onClick={() => setFilter('Ongoging')}
             >
               Ongoing
             </DropdownMenuLabel>
             <DropdownMenuLabel
               className="hover:bg-gray-100 cursor-pointer"
-              onClick={() => setFilter('delivered')}
+              onClick={() => setFilter('Shipped')}
             >
-              Delivered
+              Shipped
             </DropdownMenuLabel>
             <DropdownMenuLabel
               className="hover:bg-gray-100 cursor-pointer"
-              onClick={() => setFilter('cancelled')}
+              onClick={() => setFilter('Cancelled')}
             >
               Cancelled
             </DropdownMenuLabel>

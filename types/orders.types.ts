@@ -27,8 +27,10 @@ export interface OrdersApiResponse {
   success: boolean
   message: string
   data: Order[]
-  pagination?: {
+  meta?: {
     totalPages: number
-    totalData: number
+    page: number
+    limit: number
+    total: number
   }
 }
