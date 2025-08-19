@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { Camera, Trash2 } from "lucide-react";
+import { Camera } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
@@ -40,7 +40,7 @@ const PersonalInfo = () => {
   // const userId = (session?.data?.user as { id: string })?.id;
   const queryClient = new QueryClient();
 
-  const [image, setProfileImage] = useState("/images/no-img.webp");
+  const [image, setProfileImage] = useState("/assets/images/no-user.jpg");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // get api
@@ -86,35 +86,34 @@ const PersonalInfo = () => {
   });
 
   // delete api
-  const { mutate: deleteImage } = useMutation({
-    mutationKey: ["delete-profile-image"],
-    mutationFn: async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/delete-profile`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (!res.ok) throw new Error("Delete failed");
-      return res.json();
-    },
-    onSuccess: (data) => {
-      if (data?.success) {
-        toast.success(data?.message || "Profile image deleted successfully");
-        return;
-      }
-      toast.error(data?.message || "Something went wrong");
+  // const { mutate: deleteImage } = useMutation({
+  //   mutationKey: ["delete-profile-image"],
+  //   mutationFn: async () => {
+  //     const res = await fetch(
+  //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/delete-profile`,
+  //       {
+  //         method: "DELETE",
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     if (!res.ok) throw new Error("Delete failed");
+  //     return res.json();
+  //   },
+  //   onSuccess: (data) => {
+  //     if (data?.success) {
+  //       toast.success(data?.message || "Profile image deleted successfully");
+  //       return;
+  //     }
+  //     toast.error(data?.message || "Something went wrong");
 
-      queryClient.invalidateQueries({
-        queryKey: ["profile-img"],
-      });
-      console.log("Response:", data);
-    },
-   
-  });
+  //     queryClient.invalidateQueries({
+  //       queryKey: ["profile-img"],
+  //     });
+  //     console.log("Response:", data);
+  //   },
+  // });
 
   useEffect(() => {
     const image = data?.data?.imageLink;
@@ -140,9 +139,9 @@ const PersonalInfo = () => {
     mutate(formData);
   };
 
-  const handleDelete = () => {
-    deleteImage();
-  };
+  // const handleDelete = () => {
+  //   deleteImage();
+  // };
 
   return (
     <div className="flex flex-col md:flex-row items-center gap-4 mb-8 border border-[#B0B0B0] p-6 rounded-[12px] relative mt-8">
@@ -178,14 +177,16 @@ const PersonalInfo = () => {
           </Button>
 
           {/* Trash Icon (Reset image) */}
+          {/*
           <Button
             size="sm"
             className="w-8 h-8 p-0 rounded-full bg-red-500 hover:bg-red-600"
             title="Delete current image"
             onClick={handleDelete}
-          >
+          > 
             <Trash2 className="w-4 h-4" />
           </Button>
+*/}
         </div>
       </div>
       <div className="h-full flex flex-col items-start justify-center">
