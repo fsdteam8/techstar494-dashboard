@@ -16,6 +16,8 @@ import {
 import { useSession } from 'next-auth/react'
 import { SubscribersApiResponse } from '../../../../../types/subscribers.types'
 import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLoader'
+import ErrorContainer from '@/components/shared/shared/ErrorContainer/ErrorContainer'
+import NotFound from '@/components/shared/shared/NotFound/NotFound'
 
 interface SubscriberContainerProps {
   search: string
@@ -38,7 +40,7 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
     queryFn: () => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '8',
+        limit: '10',
       })
 
       if (debouncedSearch.trim()) {
@@ -46,11 +48,11 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
       }
 
       if (filter) {
-        params.append('filter', filter)
+        params.append('dateFilter', filter)
       }
 
       return fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/subscriber/all?${params}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/subscriber/all?page=${currentPage}&limt=10&${params}`,
         {
           method: 'GET',
           headers: {
@@ -62,6 +64,8 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
     },
     enabled: !!token, // only run if token exists
   })
+
+  // console.log(data?.pagination)
 
   const rowsNumber = data?.data.length
 
@@ -76,9 +80,17 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
 
   if (isError) {
     return (
-      <p className="text-center text-red-500 py-10">
-        {(error as Error).message}
-      </p>
+      <div className="my-10 rounded-lg">
+        <ErrorContainer message={error?.message || 'Something went wrong'} />
+      </div>
+    )
+  }
+
+  if (data?.data?.length === 0) {
+    return (
+      <div className="my-10 rounded-lg">
+        <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
+      </div>
     )
   }
 
@@ -94,24 +106,25 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
           <DropdownMenuContent className="min-w-[5rem] bg-[#F0EDF9]">
             <DropdownMenuLabel
               className="cursor-pointer hover:bg-gray-100"
-              onClick={() => setFilter('this-month')}
+              onClick={() => setFilter('thisMonth')}
             >
               This Month
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-[#B3B3B3]" />
+
             <DropdownMenuLabel
               className="cursor-pointer hover:bg-gray-100"
-              onClick={() => setFilter('previous-month')}
-            >
-              Previous Month
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-[#B3B3B3]" />
-            <DropdownMenuLabel
-              className="cursor-pointer hover:bg-gray-100"
-              onClick={() => setFilter('last-month')}
+              onClick={() => setFilter('lastMonth')}
             >
               Last Month
             </DropdownMenuLabel>
+            <DropdownMenuLabel
+              className="cursor-pointer hover:bg-gray-100"
+              onClick={() => setFilter('lastYear')}
+            >
+              Last Year
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-[#B3B3B3]" />
             <DropdownMenuLabel
               className="cursor-pointer hover:bg-gray-100"
               onClick={() => setFilter('')}
@@ -185,17 +198,19 @@ const SubscriberContainer: React.FC<SubscriberContainerProps> = ({
         </table>
 
         {/* Pagination */}
-        {data?.pagination && data.pagination.totalPages > 1 && (
-          <div className="bg-white flex items-center justify-between py-[10px] px-[50px]">
+        {data?.pagination && data.pagination.totalPages > 0 && (
+          <div className="w-full bg-white flex items-center justify-between py-[10px] px-[50px] ">
             <p className="text-sm text-[#707070]">
               Showing page {currentPage} of {data.pagination.totalPages} — Total{' '}
               {data.pagination.totalSubscribers} subscribers
             </p>
-            <TechstarPagination
-              totalPages={data.pagination.totalPages}
-              currentPage={currentPage}
-              onPageChange={(page) => setCurrentPage(page)}
-            />
+            <div>
+              <TechstarPagination
+                totalPages={data.pagination.totalPages}
+                currentPage={currentPage}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
           </div>
         )}
       </div>
