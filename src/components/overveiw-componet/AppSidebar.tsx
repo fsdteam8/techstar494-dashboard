@@ -39,7 +39,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import LogoutModal from "../modal/LogoutModal";
 
 const navigationItems = [
@@ -83,6 +83,9 @@ export default function ClientLayout({
 }) {
   const pathname = usePathname();
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const session = useSession();
+  const userName = (session?.data?.user as {userName: string})?.userName
+
 
   const handLogout = async () => {
     try {
@@ -94,13 +97,13 @@ export default function ClientLayout({
     }
   };
 
-  const getInitials = (name?: string) => {
-    if (!name) return "U";
-    return name.charAt(0).toUpperCase();
-  };
+  // const isDocumentsActive = settingsItems.some(
+  //   (item) => pathname === item.href
+  // );
+
   const isDocumentsActive = settingsItems.some(
-    (item) => pathname === item.href
-  );
+  (item) => pathname.startsWith(item.href)
+);
 
   return (
     <SidebarProvider className="px-0">
@@ -239,10 +242,10 @@ export default function ClientLayout({
         <SidebarInset className="flex-1  ">
           <div className="bg-[#6B46C1] text-white py-4 flex justify-end items-center px-6 sticky top-0 z-50 ">
             <div className="flex items-center gap-2">
-              <span className="text-sm">User 12</span>
+              <span className="text-sm">{userName }</span>
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-white text-cyan-500">
-                  {getInitials()}
+                      {userName ? userName.charAt(0).toUpperCase() : "USER"}
                 </AvatarFallback>
               </Avatar>
             </div>
