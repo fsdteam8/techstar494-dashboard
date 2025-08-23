@@ -16,10 +16,10 @@ export default function ProductsHeader({ onAddProductClick, onSearchChange, sear
     <div className="w-full flex items-center justify-between">
       <div>
         <h2 className="text-xl font-bold text-[#1F2937] leading-[120%]">
-          Orders List
+          Products List
         </h2>
         <p className="text-sm text-[#4B5563] leading-[120%] font-normal pt-2">
-          See your orders list.
+          Manage your Products
         </p>
       </div>
       <div className="relative w-1/3">

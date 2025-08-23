@@ -21,7 +21,7 @@ export function QuickActions() {
       title: "Manage Users",
       icon: Users,
       color: "bg-[#C4EED1] text-[#19843A] hover:bg-[#B0E5C0]",
-      route: "/settings"
+      route: "/users"
     },
     {
       title: "Users List",
