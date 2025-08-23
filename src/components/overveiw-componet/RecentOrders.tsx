@@ -88,7 +88,7 @@ export function RecentOrders() {
       time: timeString,
       status: item.status,
       statusColor: getStatusColor(item.status),
-      image: item.product.photo || '/placeholder.svg'
+      image: item?.product?.photo || '/placeholder.svg'
     }
   }) || []
 
