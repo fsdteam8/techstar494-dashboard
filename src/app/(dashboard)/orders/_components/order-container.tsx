@@ -9,9 +9,25 @@ import { OrdersApiResponse } from '../../../../../types/orders.types'
 import ReusableLoader from '@/components/shared/shared/reusableLoader/ReusableLoader'
 import ErrorContainer from '@/components/shared/shared/ErrorContainer/ErrorContainer'
 import NotFound from '@/components/shared/shared/NotFound/NotFound'
+import { useSession } from 'next-auth/react'
 
-// -------- API Fetch Function --------
-const fetchOrders = async (
+
+interface OrdersContainerProps {
+  search: string
+  filter: string
+}
+
+const OrdersContainer: React.FC<OrdersContainerProps> = ({
+  search,
+  filter,
+}) => {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const session = useSession();
+  const token = (session?.data?.user as {accessToken: string})?.accessToken;
+
+  const debouncedSearch = useDebounce(search, 500)
+
+  const fetchOrders = async (
   page: number,
   search: string,
   filter: string
@@ -31,7 +47,12 @@ const fetchOrders = async (
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BACKEND_URL}/order?${params.toString()}`,
-    { cache: 'no-store' }
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "content-type": "application/json"
+      },
+    }
   )
 
   if (!res.ok) {
@@ -39,19 +60,6 @@ const fetchOrders = async (
   }
   return res.json()
 }
-
-interface OrdersContainerProps {
-  search: string
-  filter: string
-}
-
-const OrdersContainer: React.FC<OrdersContainerProps> = ({
-  search,
-  filter,
-}) => {
-  const [currentPage, setCurrentPage] = useState<number>(1)
-
-  const debouncedSearch = useDebounce(search, 500)
 
   const { data, isLoading, isError, error } = useQuery<OrdersApiResponse>({
     queryKey: ['orders', currentPage, debouncedSearch, filter],

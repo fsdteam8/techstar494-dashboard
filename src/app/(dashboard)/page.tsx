@@ -1,6 +1,6 @@
 
-import { Button } from "@/components/ui/button"
-import { Filter } from "lucide-react"
+// import { Button } from "@/components/ui/button"
+// import { Filter } from "lucide-react"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
 import { DashboardStats } from "@/components/overveiw-componet/DashboardStats"
@@ -23,10 +23,10 @@ export default function Dashboard() {
                 <h1 className="text-[32px] font-semibold text-[#6B46C1]">Dashboard</h1>
                 <p className="text-base text-[#6B46C1] font-normal mt-1">Welcome back to your admin panel!</p>
               </div>
-              <Button variant={"outline"} className="flex text-sm text-[#000000] font-medium items-center border border-[#6B46C1] h-[48px] rounded-[8px] w-[136px] gap-2 bg-transparent">
+              {/* <Button variant={"outline"} className="flex text-sm text-[#000000] font-medium items-center border border-[#6B46C1] h-[48px] rounded-[8px] w-[136px] gap-2 bg-transparent">
                 <Filter className="h-4 w-4" />
                 Filters
-              </Button>
+              </Button> */}
             </div>
           </div>
 
