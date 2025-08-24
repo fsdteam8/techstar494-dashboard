@@ -36,12 +36,7 @@ const CategoriesContainer = () => {
   const { data, isLoading, error, isError } = useQuery<CategoriesResponse>({
     queryKey: ["categories"],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category`).then((res) => res.json()),
   });
   console.log(data?.data);
   const categoryData = data?.data || [];
