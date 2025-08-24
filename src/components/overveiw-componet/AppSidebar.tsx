@@ -44,6 +44,7 @@ import LogoutModal from "../modal/LogoutModal";
 
 const navigationItems = [
   { title: "Overview", icon: LayoutDashboard, href: "/", isActive: true },
+  { title: "Categories", icon: Boxes, href: "/categories" },
   { title: "Products", icon: Boxes, href: "/products" },
   { title: "Orders", icon: ShoppingCart, href: "/orders" },
   { title: "Users", icon: Users, href: "/users" },

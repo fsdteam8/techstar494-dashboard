@@ -80,6 +80,8 @@ const AllBlogsContainer = () => {
     }
     setDeleteModalOpen(false);
   };
+
+  
   if (isLoading) {
     return (
       <div className="my-10 rounded-lg">
