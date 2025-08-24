@@ -125,11 +125,7 @@ const AddAndEditCategoryForm = ({
   const { data } = useQuery<CategoryResponse>({
     queryKey: ["single-category", catId],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category/${catId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/category/${catId}`).then((res) => res.json()),
     enabled: !!catId && open,
   });
 
